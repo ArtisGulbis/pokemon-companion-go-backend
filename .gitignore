@@ -1,0 +1,4 @@
+*.db
+.vscode
+.claude
+main
