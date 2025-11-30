@@ -2,11 +2,11 @@ package routes
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/ArtisGulbis/pokemon-companion-go-backend/db"
+	"github.com/ArtisGulbis/pokemon-companion-go-backend/dto"
 	"github.com/ArtisGulbis/pokemon-companion-go-backend/model"
 	"github.com/ArtisGulbis/pokemon-companion-go-backend/queries"
 	"github.com/ArtisGulbis/pokemon-companion-go-backend/services"
@@ -79,17 +79,23 @@ func (rt *Router) getPokemon(w http.ResponseWriter, r *http.Request) {
 		// Every iteration: Append type
 		pokemon.Types = append(pokemon.Types, model.PokemonType{
 			Slot: typeSlot,
-			Type: model.TypeInfo{
-				Name: typeName,
-				URL:  fmt.Sprintf("https://pokeapi.co/api/v2/type/%s", typeName),
-			},
+			Name: typeName,
 		})
 	}
 
+	if err := rows.Err(); err != nil {
+		writeError(w, "Error reading data", err, http.StatusInternalServerError)
+		return
+	}
+
+	if pokemon == nil {
+		writeError(w, "Pokemon not found", nil, http.StatusNotFound)
+		return
+	}
+
+	// Success
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-
-	// Encode and send the Pokemon data as JSON
 	json.NewEncoder(w).Encode(map[string]*model.Pokemon{
 		"pokemon": pokemon,
 	})
@@ -106,7 +112,7 @@ func (rt *Router) syncPokemon(w http.ResponseWriter, r *http.Request) {
 
 	defer resp.Body.Close()
 
-	var pokemon model.Pokemon
+	var pokemon dto.PokemonResponse
 	err = json.NewDecoder(resp.Body).Decode(&pokemon)
 	if err != nil {
 		writeError(w, "Failed to fetch", err, http.StatusInternalServerError)
@@ -124,7 +130,7 @@ func (rt *Router) syncPokemon(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 
 	// Encode and send the Pokemon data as JSON
-	json.NewEncoder(w).Encode(map[string]*model.Pokemon{
+	json.NewEncoder(w).Encode(map[string]*dto.PokemonResponse{
 		"pokemon": &pokemon,
 	})
 }

@@ -3,7 +3,7 @@ package services
 import (
 	"database/sql"
 
-	"github.com/ArtisGulbis/pokemon-companion-go-backend/model"
+	"github.com/ArtisGulbis/pokemon-companion-go-backend/dto"
 	"github.com/ArtisGulbis/pokemon-companion-go-backend/queries"
 	"github.com/ArtisGulbis/pokemon-companion-go-backend/utils"
 )
@@ -11,10 +11,8 @@ import (
 type PokemonService struct {
 }
 
-func (ps *PokemonService) InsertPokemon(p *model.Pokemon) (int8, error) {
+func (ps *PokemonService) InsertPokemon(p *dto.PokemonResponse) (int8, error) {
 	db, _ := sql.Open("sqlite", "./pokemon.db")
-
-	ut := utils.Utils{}
 
 	typesStmt, err := db.Prepare(queries.InsertPokemonType)
 	if err != nil {
@@ -22,7 +20,7 @@ func (ps *PokemonService) InsertPokemon(p *model.Pokemon) (int8, error) {
 	}
 	defer typesStmt.Close()
 	for _, p_type := range p.Types {
-		type_id := ut.GetId(p_type.Type.URL)
+		type_id := utils.GetId(p_type.Type.URL)
 		_, err = typesStmt.Exec(p.ID, type_id, p_type.Slot)
 		if err != nil {
 			return 1, err
