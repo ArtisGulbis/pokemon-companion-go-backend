@@ -2,11 +2,13 @@ package routes
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/ArtisGulbis/pokemon-companion-go-backend/db"
 	"github.com/ArtisGulbis/pokemon-companion-go-backend/model"
+	"github.com/ArtisGulbis/pokemon-companion-go-backend/queries"
 	"github.com/ArtisGulbis/pokemon-companion-go-backend/services"
 )
 
@@ -27,7 +29,8 @@ func New(database *db.Database) *Router {
 func (rt *Router) Setup() http.Handler {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("GET /{id}", rt.fetchPokemon)
+	mux.HandleFunc("POST /{id}", rt.syncPokemon)
+	mux.HandleFunc("GET /{id}", rt.getPokemon)
 
 	// mux.HandleFunc("POST /pokemon", rt.createPokemon)
 	// mux.HandleFunc("GET /pokemon", rt.listPokemon)
@@ -36,7 +39,63 @@ func (rt *Router) Setup() http.Handler {
 	return mux
 }
 
-func (rt *Router) fetchPokemon(w http.ResponseWriter, r *http.Request) {
+func (rt *Router) getPokemon(w http.ResponseWriter, r *http.Request) {
+	pokemonId := r.PathValue("id")
+	rows, err := rt.db.Query(queries.GetPokemonByID, pokemonId)
+	if err != nil {
+		writeError(w, "Pokemon not found", err, http.StatusNotFound)
+		return
+	}
+	defer rows.Close()
+
+	var pokemon *model.Pokemon
+
+	for rows.Next() {
+		var id int
+		var name string
+		var height int
+		var weight int
+		var typeName string
+		var typeSlot int
+
+		// Scan current row (order matches SELECT statement!)
+		err := rows.Scan(&id, &name, &height, &weight, &typeName, &typeSlot)
+		if err != nil {
+			writeError(w, "Failed to read data", err, http.StatusInternalServerError)
+			return
+		}
+
+		// First iteration: Create Pokemon struct
+		if pokemon == nil {
+			pokemon = &model.Pokemon{
+				ID:     id,
+				Name:   name,
+				Height: height,
+				Weight: weight,
+				Types:  []model.PokemonType{},
+			}
+		}
+
+		// Every iteration: Append type
+		pokemon.Types = append(pokemon.Types, model.PokemonType{
+			Slot: typeSlot,
+			Type: model.TypeInfo{
+				Name: typeName,
+				URL:  fmt.Sprintf("https://pokeapi.co/api/v2/type/%s", typeName),
+			},
+		})
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	// Encode and send the Pokemon data as JSON
+	json.NewEncoder(w).Encode(map[string]*model.Pokemon{
+		"pokemon": pokemon,
+	})
+}
+
+func (rt *Router) syncPokemon(w http.ResponseWriter, r *http.Request) {
 	pokemonId := r.PathValue("id")
 
 	resp, err := http.Get(pokemonBasePath + pokemonId)

@@ -11,5 +11,8 @@ import (
 //go:embed pokemon.sql
 var InsertPokemon string
 
+//go:embed types.sql
+var InsertPokemonType string
+
 //go:embed get_pokemon.sql
 var GetPokemonByID string
