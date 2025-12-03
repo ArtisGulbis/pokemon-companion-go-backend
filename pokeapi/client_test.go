@@ -59,7 +59,7 @@ func TestFetchPokemon(t *testing.T) {
 				if err == nil {
 					t.Error("Expected error, got nil")
 				}
-				return // Don't check pokemon fields if we expected error
+				return
 			}
 			if err != nil {
 				t.Fatalf("Unexpected error: %v", err)
@@ -80,15 +80,18 @@ func TestFetchPokemon(t *testing.T) {
 	}
 }
 
-func TestFetchAllPokemon(t *testing.T) {
+func TestFetchAll(t *testing.T) {
 	tests := []struct {
 		name             string
 		mockResponse     string
 		mockStatus       int
 		expectedResponse []models.Response
+		path             string
+		expectedPath     string
+		expectErr        bool
 	}{
 		{
-			name:       "Not Found",
+			name:       "Success",
 			mockStatus: 200,
 			mockResponse: `{
 				"results": [
@@ -107,19 +110,57 @@ func TestFetchAllPokemon(t *testing.T) {
 				{Name: "ivysaur", Url: "https://pokeapi.co/api/v2/pokemon/2/"},
 			},
 		},
+		{
+			name:       "Wrong Type for Name",
+			mockStatus: 200,
+			mockResponse: `{
+				"results": [
+					{
+					"name": 123,
+					"url": "https://pokeapi.co/api/v2/pokemon/1/"
+					}
+				]
+			}`,
+			expectErr: true,
+		},
+		{
+			name:             "Empty Results",
+			mockStatus:       200,
+			mockResponse:     `{"results": []}`,
+			expectedResponse: []models.Response{},
+			expectErr:        false,
+		},
+		{
+			name:         "HTTP Error",
+			mockStatus:   404,
+			mockResponse: ``,
+			expectErr:    true,
+		},
+		{
+			name:         "Malformed JSON",
+			mockStatus:   200,
+			mockResponse: `{invalid json}`, // Broken JSON
+			expectErr:    true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				if r.URL.Path != "/api/v2/pokemon" {
-					t.Errorf("Expected path /api/v2/pokemon?limit=1500, got %s", r.URL.Path)
+					t.Errorf("Expected base path /api/v2/pokemon, got %s", r.URL.Path)
 				}
 				w.WriteHeader(tt.mockStatus)
 				w.Write([]byte(tt.mockResponse))
 			}))
 			defer mockServer.Close()
 			client := NewClient(mockServer.URL)
-			allPokemon, err := client.FetchAllPokemon()
+			allPokemon, err := client.FetchAll("pokemon?limit=1500")
+			if tt.expectErr {
+				if err == nil {
+					t.Error("Expected error, got nil")
+				}
+				return
+			}
 			if err != nil {
 				t.Fatalf("Unexpected error: %v", err)
 			}
