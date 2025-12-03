@@ -16,7 +16,8 @@ func NewClient(baseURL string) *Client {
 	return &Client{BaseURL: baseURL}
 }
 
-func (c *Client) FetchPokemon(url string) (*models.Pokemon, error) {
+func (c *Client) FetchPokemon(id int) (*models.Pokemon, error) {
+	url := fmt.Sprintf("%s/api/v2/pokemon/%d", c.BaseURL, id)
 	resp, err := http.Get(url)
 	if err != nil {
 		return nil, err

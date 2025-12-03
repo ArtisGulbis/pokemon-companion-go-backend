@@ -1,6 +1,7 @@
 package pokeapi
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -48,15 +49,16 @@ func TestFetchPokemon(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			mockServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				if r.URL.Path != tt.url {
-					t.Errorf("Expected path %s, got %s", tt.url, r.URL.Path)
+				expectedPath := fmt.Sprintf("/api/v2/pokemon/%d", tt.pokemonID)
+				if r.URL.Path != expectedPath {
+					t.Errorf("Expected path %s, got %s", expectedPath, r.URL.Path)
 				}
 				w.WriteHeader(tt.mockStatus)
 				w.Write([]byte(tt.mockResponse))
 			}))
 			defer mockServer.Close()
 			client := NewClient(mockServer.URL)
-			pokemon, err := client.FetchPokemon(tt.url)
+			pokemon, err := client.FetchPokemon(tt.pokemonID)
 			if tt.expectErr {
 				if err == nil {
 					t.Error("Expected error, got nil")
