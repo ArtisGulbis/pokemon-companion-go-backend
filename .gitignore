@@ -1,3 +1,5 @@
 *.db
 .vscode
 .claude
+cov.out
+pokeapi_doc.md
