@@ -11,28 +11,30 @@ import (
 
 func TestFetchPokemon(t *testing.T) {
 	tests := []struct {
-		name           string
-		pokemonID      int
-		mockStatus     int
-		mockResponse   string
-		expectErr      bool
-		expectedID     int
-		expectedName   string
-		expectedHeight int
-		expectedWeight int
-		url            string
+		name                   string
+		pokemonID              int
+		mockStatus             int
+		mockResponse           string
+		expectErr              bool
+		expectedID             int
+		expectedName           string
+		expectedHeight         int
+		expectedWeight         int
+		expectedBaseExperience int
+		url                    string
 	}{
 		{
-			name:           "Valid Pokemon",
-			pokemonID:      25,
-			mockStatus:     200,
-			mockResponse:   `{"id": 25, "name": "pikachu", "height": 4, "weight": 60}`,
-			expectErr:      false,
-			expectedID:     25,
-			expectedName:   "pikachu",
-			expectedHeight: 4,
-			expectedWeight: 60,
-			url:            "https://pokeapi.co/api/v2/pokemon/25/",
+			name:                   "Valid Pokemon",
+			pokemonID:              25,
+			mockStatus:             200,
+			mockResponse:           `{"id": 25, "name": "pikachu", "height": 4, "weight": 60, base_experience: 25}`,
+			expectErr:              false,
+			expectedID:             25,
+			expectedName:           "pikachu",
+			expectedHeight:         4,
+			expectedWeight:         60,
+			expectedBaseExperience: 25,
+			url:                    "https://pokeapi.co/api/v2/pokemon/25/",
 		},
 		{
 			name:         "Not Found",
@@ -76,6 +78,9 @@ func TestFetchPokemon(t *testing.T) {
 			}
 			if pokemon.Weight != tt.expectedWeight {
 				t.Errorf("Expected Weight %d, got %d", tt.expectedWeight, pokemon.Weight)
+			}
+			if pokemon.BaseExperience != tt.expectedBaseExperience {
+				t.Errorf("Expected BaseExperience %d, got %d", tt.expectedBaseExperience, pokemon.BaseExperience)
 			}
 			if pokemon.Height != tt.expectedHeight {
 				t.Errorf("Expected Heigth %d, got %d", tt.expectedHeight, pokemon.Height)

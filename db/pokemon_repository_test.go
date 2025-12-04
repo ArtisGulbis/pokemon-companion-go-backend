@@ -18,10 +18,11 @@ func TestInsertPokemon(t *testing.T) {
 
 	// Test data
 	pokemon := &models.Pokemon{
-		ID:     25,
-		Name:   "pikachu",
-		Height: 4,
-		Weight: 60,
+		ID:             25,
+		Name:           "pikachu",
+		Height:         4,
+		Weight:         60,
+		BaseExperience: 25,
 	}
 
 	// Act

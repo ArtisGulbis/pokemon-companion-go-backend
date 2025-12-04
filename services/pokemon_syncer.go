@@ -5,6 +5,7 @@ import (
 	"log"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type PokemonSyncer struct {
@@ -53,7 +54,18 @@ func (s *PokemonSyncer) SyncAll(limit int) error {
 	if err != nil {
 		log.Fatal(err)
 	}
-	for _, apr := range allPokemonResponse {
+
+	// Rate limiting: PokeAPI recommends max 100 requests/minute
+	// That's 1 request per 600ms, but we'll use 650ms to be safe
+	rateLimiter := time.NewTicker(650 * time.Millisecond)
+	defer rateLimiter.Stop()
+
+	for i, apr := range allPokemonResponse {
+		// Wait for rate limiter (except first request)
+		if i > 0 {
+			<-rateLimiter.C
+		}
+
 		// Extract ID from URL
 		id, err := extractIDFromURL(apr.Url)
 		if err != nil {
@@ -68,7 +80,7 @@ func (s *PokemonSyncer) SyncAll(limit int) error {
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println("Inserted ", pokemon.Name)
+		fmt.Printf("Inserted %s (%d/%d)\n", pokemon.Name, i+1, len(allPokemonResponse))
 	}
 	return nil
 }
