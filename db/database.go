@@ -43,14 +43,11 @@ func New(dbPath string) (*Database, error) {
 }
 
 func (db *Database) initSchema() error {
-	fmt.Println("📦 Initializing database schema...")
-
 	_, err := db.Exec(schemaSQL)
 	if err != nil {
 		return fmt.Errorf("schema initialization failed: %w", err)
 	}
-
-	fmt.Println("✅ Schema initialized successfully")
+	fmt.Println("Schema initialized successfully")
 	return nil
 }
 

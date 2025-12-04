@@ -25,7 +25,7 @@ func (r *PokemonRepository) InsertPokemon(p *models.Pokemon) error {
 
 	defer stmt.Close()
 
-	result, err := stmt.Exec(
+	_, err = stmt.Exec(
 		p.ID,
 		p.Name,
 		p.Height,
@@ -34,14 +34,6 @@ func (r *PokemonRepository) InsertPokemon(p *models.Pokemon) error {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	id, err := result.LastInsertId()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Println("Inserted ", id)
-
 	return nil
 }
 
