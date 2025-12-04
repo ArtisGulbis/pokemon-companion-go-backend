@@ -30,6 +30,7 @@ func (r *PokemonRepository) InsertPokemon(p *models.Pokemon) error {
 		p.Name,
 		p.Height,
 		p.Weight,
+		p.BaseExperience,
 	)
 	if err != nil {
 		log.Fatal(err)
@@ -49,6 +50,7 @@ func (r *PokemonRepository) GetPokemonByID(id int) (*models.Pokemon, error) {
 	for rows.Next() {
 		var typeName sql.NullString
 		var typeSlot sql.NullInt64
+		var baseExperience sql.NullInt64
 
 		if pokemon == nil {
 			pokemon = &models.Pokemon{Types: []models.PokemonType{}}
@@ -57,14 +59,19 @@ func (r *PokemonRepository) GetPokemonByID(id int) (*models.Pokemon, error) {
 				&pokemon.Name,
 				&pokemon.Height,
 				&pokemon.Weight,
+				&baseExperience,
 				&typeName,
 				&typeSlot,
 			)
+			if baseExperience.Valid {
+				pokemon.BaseExperience = int(baseExperience.Int64)
+			}
 		} else {
 			var tempID int
 			var tempName string
 			var tempHeight, tempWeight int
-			err = rows.Scan(&tempID, &tempName, &tempHeight, &tempWeight, &typeName, &typeSlot)
+			var tempBaseExperience sql.NullInt64
+			err = rows.Scan(&tempID, &tempName, &tempHeight, &tempWeight, &tempBaseExperience, &typeName, &typeSlot)
 		}
 
 		if err != nil {

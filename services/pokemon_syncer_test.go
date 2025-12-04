@@ -2,6 +2,7 @@ package services
 
 import (
 	"testing"
+	"time"
 
 	"github.com/ArtisGulbis/pokemon-companion-go-backend/models"
 )
@@ -46,7 +47,7 @@ func (m *MockPokemonRepo) GetPokemonByID(id int) (*models.Pokemon, error) {
 	return nil, nil
 }
 
-func TestSyncAll(t *testing.T) {
+func TestSyncAllPokemon(t *testing.T) {
 	t.Run("Successfully syncs all Pokemon", func(t *testing.T) {
 		// Track what was called
 		var insertedPokemon []*models.Pokemon
@@ -80,8 +81,10 @@ func TestSyncAll(t *testing.T) {
 			},
 		}
 
+		rateLimiter := time.NewTicker(1 * time.Millisecond)
+
 		// Create syncer with mocks
-		syncer := NewPokemonSyncer(mockClient, mockRepo)
+		syncer := NewPokemonSyncer(mockClient, mockRepo, rateLimiter)
 
 		// Act
 		err := syncer.SyncAll(2)

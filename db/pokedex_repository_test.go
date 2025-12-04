@@ -26,7 +26,7 @@ func TestInsertPokedex(t *testing.T) {
 		t.Fatalf("Failed to insert: %v", err)
 	}
 
-	retrieved, err := repo.GetPokedexById(pokedex.ID)
+	retrieved, err := repo.GetPokedexByID(pokedex.ID)
 	if err != nil {
 		t.Fatalf("Failed to retrieve: %v", err)
 	}

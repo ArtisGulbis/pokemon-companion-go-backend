@@ -3,6 +3,7 @@ SELECT
     p.name,
     p.height,
     p.weight,
+    p.base_experience,
     t.name AS type_name,
     pt.slot AS type_slot
 FROM pokemon p

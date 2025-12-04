@@ -36,6 +36,26 @@ func (c *Client) FetchPokemon(id int) (*models.Pokemon, error) {
 	return &pokemon, nil
 }
 
+func (c *Client) FetchPokedex(id int) (*models.Pokedex, error) {
+	url := fmt.Sprintf("%s/api/v2/pokedex/%d", c.BaseURL, id)
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("failed to fetch pokedex: %s", resp.Status)
+	}
+
+	var pokedex models.Pokedex
+	if err := json.NewDecoder(resp.Body).Decode(&pokedex); err != nil {
+		return nil, fmt.Errorf("failed to decode pokedex: %w", err)
+	}
+
+	return &pokedex, nil
+}
+
 func (c *Client) FetchAll(path string) ([]models.Response, error) {
 	url := fmt.Sprintf("%s/api/v2/%s", c.BaseURL, path)
 	resp, err := http.Get(url)

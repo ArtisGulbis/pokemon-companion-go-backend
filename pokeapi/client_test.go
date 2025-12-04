@@ -27,7 +27,7 @@ func TestFetchPokemon(t *testing.T) {
 			name:                   "Valid Pokemon",
 			pokemonID:              25,
 			mockStatus:             200,
-			mockResponse:           `{"id": 25, "name": "pikachu", "height": 4, "weight": 60, base_experience: 25}`,
+			mockResponse:           `{"id": 25, "name": "pikachu", "height": 4, "weight": 60, "base_experience": 25}`,
 			expectErr:              false,
 			expectedID:             25,
 			expectedName:           "pikachu",

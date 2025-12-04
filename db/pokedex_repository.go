@@ -35,8 +35,8 @@ func (r *PokedexRepository) InsertPokedex(p *models.Pokedex) error {
 	return nil
 }
 
-func (r *PokedexRepository) GetPokedexById(id int) (*models.Pokedex, error) {
-	rows, err := r.db.Query(queries.GetPokedexById, id)
+func (r *PokedexRepository) GetPokedexByID(id int) (*models.Pokedex, error) {
+	rows, err := r.db.Query(queries.GetPokedexByID, id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query: %w", err)
 	}
