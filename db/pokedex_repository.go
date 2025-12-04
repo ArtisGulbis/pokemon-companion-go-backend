@@ -28,10 +28,28 @@ func (r *PokedexRepository) InsertPokedex(p *models.Pokedex) error {
 		p.IsMainSeries,
 		p.Name,
 	)
-
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	return nil
+}
+
+func (r *PokedexRepository) InsertPokedexDescriptions(descriptions []models.PokedexDescriptions, pokedexID int) error {
+	stmt, err := r.db.Prepare(queries.InsertPokemonDescriptions)
+	if err != nil {
+		return fmt.Errorf("failed to prepare statement: %w", err)
+	}
+	defer stmt.Close()
+
+	// Loop through each description and insert
+	for _, desc := range descriptions {
+		_, err := stmt.Exec(pokedexID, desc.Language, desc.Description)
+		if err != nil {
+			return fmt.Errorf("failed to insert description: %w", err)
+		}
+	}
+
 	return nil
 }
 

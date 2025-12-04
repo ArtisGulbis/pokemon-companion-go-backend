@@ -6,11 +6,6 @@ import (
 	"strings"
 )
 
-func GetId(url string) string {
-	split := strings.Split(url, "/")
-	return split[len(split)-2]
-}
-
 func ExtractIDFromURL(url string) (int, error) {
 	// Remove trailing slash and split by "/"
 	url = strings.TrimSuffix(url, "/")

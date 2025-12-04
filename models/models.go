@@ -10,9 +10,15 @@ type Pokemon struct {
 }
 
 type Pokedex struct {
-	ID           int    `json:"id"`
-	IsMainSeries bool   `json:"is_main_series"`
-	Name         string `json:"name"`
+	ID           int                   `json:"id"`
+	IsMainSeries bool                  `json:"is_main_series"`
+	Name         string                `json:"name"`
+	Descriptions []PokedexDescriptions `json:"descriptions"`
+}
+
+type PokedexDescriptions struct {
+	Description string     `json:"description"`
+	Language    []Response `json:"language"`
 }
 
 type PokemonType struct {
