@@ -42,9 +42,8 @@ func (r *PokedexRepository) InsertPokedexDescriptions(descriptions []models.Poke
 	}
 	defer stmt.Close()
 
-	// Loop through each description and insert
 	for _, desc := range descriptions {
-		_, err := stmt.Exec(pokedexID, desc.Language, desc.Description)
+		_, err := stmt.Exec(desc.Language.Name, desc.Description, pokedexID)
 		if err != nil {
 			return fmt.Errorf("failed to insert description: %w", err)
 		}

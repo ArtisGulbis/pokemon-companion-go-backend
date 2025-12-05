@@ -45,12 +45,12 @@ func (s *PokedexSyncer) SyncAll(limit int) error {
 
 		err = s.repo.InsertPokedex(pokedex)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatalf("Failed to insert pokedex ID %d: %v", pokedex.ID, err)
 		}
 
 		err = s.repo.InsertPokedexDescriptions(pokedex.Descriptions, pokedex.ID)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatalf("Failed to insert descriptions for pokedex ID %d: %v", pokedex.ID, err)
 		}
 		fmt.Printf("Inserted Pokedex %s (%d/%d)\n", pokedex.Name, i+1, len(allPokedexes))
 	}

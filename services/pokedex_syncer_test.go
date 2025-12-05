@@ -73,20 +73,16 @@ func TestSyncAllPokedexes(t *testing.T) {
 					Descriptions: []models.PokedexDescriptions{
 						{
 							Description: "Test description",
-							Language: []models.Response{
-								{
-									Name: "en",
-									Url:  "some url",
-								},
+							Language: models.Response{
+								Name: "en",
+								Url:  "test url",
 							},
 						},
 						{
 							Description: "Test description",
-							Language: []models.Response{
-								{
-									Name: "en",
-									Url:  "some url",
-								},
+							Language: models.Response{
+								Name: "en",
+								Url:  "test url",
 							},
 						},
 					},

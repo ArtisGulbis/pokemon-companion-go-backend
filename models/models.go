@@ -17,8 +17,8 @@ type Pokedex struct {
 }
 
 type PokedexDescriptions struct {
-	Description string     `json:"description"`
-	Language    []Response `json:"language"`
+	Description string   `json:"description"`
+	Language    Response `json:"language"`
 }
 
 type PokemonType struct {
