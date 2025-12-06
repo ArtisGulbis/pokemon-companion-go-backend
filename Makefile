@@ -19,7 +19,7 @@ run: build
 
 # Run sync with limit
 sync:
-	go run ./cmd/sync -limit=10
+	go run ./cmd/sync -limit=1100
 
 # Clean build artifacts
 clean:

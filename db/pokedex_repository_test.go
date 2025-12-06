@@ -6,14 +6,21 @@ import (
 	"github.com/ArtisGulbis/pokemon-companion-go-backend/models"
 )
 
-func TestInsertPokedex(t *testing.T) {
+func setupTest(t *testing.T) *PokedexRepository {
 	db, err := New(":memory:")
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer db.Close()
 
 	repo := NewPokedexRepository(db)
+
+	t.Cleanup(func() { db.Close() })
+
+	return repo
+}
+
+func TestInsertPokedex(t *testing.T) {
+	repo := setupTest(t)
 
 	pokedex := &models.Pokedex{
 		ID:           1,
@@ -21,7 +28,7 @@ func TestInsertPokedex(t *testing.T) {
 		IsMainSeries: true,
 	}
 
-	err = repo.InsertPokedex(pokedex)
+	err := repo.InsertPokedex(pokedex)
 	if err != nil {
 		t.Fatalf("Failed to insert: %v", err)
 	}
@@ -35,22 +42,73 @@ func TestInsertPokedex(t *testing.T) {
 	}
 }
 
-func TestInsertPokedexPokemonEntry(t *testing.T) {
-	db, err := New(":memory:")
-	if err != nil {
-		t.Fatal(err)
+func TestInsertPokedexDescription(t *testing.T) {
+	repo := setupTest(t)
+
+	pokedexDescriptions := []models.PokedexDescriptions{
+		{
+			Description: "description",
+			Language: models.Response{
+				Name: "de",
+				Url:  "some url",
+			},
+		},
+		{
+			Description: "description2",
+			Language: models.Response{
+				Name: "en",
+				Url:  "some url 2",
+			},
+		},
 	}
-	defer db.Close()
 
-	repo := NewPokedexRepository(db)
-
-	// First, create the Pokedex that the entries will reference
 	pokedex := &models.Pokedex{
 		ID:           1,
 		Name:         "Kanto",
 		IsMainSeries: true,
 	}
-	err = repo.InsertPokedex(pokedex)
+
+	err := repo.InsertPokedex(pokedex)
+	if err != nil {
+		t.Fatalf("Failed to insert pokedex: %v", err)
+	}
+
+	err = repo.InsertPokedexDescriptions(pokedexDescriptions, pokedex.ID)
+	if err != nil {
+		t.Fatalf("Failed to insert pokedex description: %v", err)
+	}
+
+	got, err := repo.GetPokedexDescriptionsByPokedexID(pokedex.ID)
+	if err != nil {
+		t.Fatalf("Failed to get pokedex description: %v", err)
+	}
+
+	if len(got) != 2 {
+		t.Fatalf("Got description length %d: want %d", len(got), len(pokedexDescriptions))
+	}
+
+	for i, desc := range got {
+		want := pokedexDescriptions[i]
+		if desc.Description != want.Description {
+			t.Fatalf("Got description: %s want: %s", desc.Description, want.Description)
+		}
+		if desc.Language.Name != want.Language.Name {
+			t.Fatalf("Got language: %s want: %s", desc.Language.Name, want.Language.Name)
+		}
+	}
+
+}
+
+func TestInsertPokedexPokemonEntry(t *testing.T) {
+	repo := setupTest(t)
+
+	pokedex := &models.Pokedex{
+		ID:           1,
+		Name:         "Kanto",
+		IsMainSeries: true,
+	}
+
+	err := repo.InsertPokedex(pokedex)
 	if err != nil {
 		t.Fatalf("Failed to insert pokedex: %v", err)
 	}

@@ -74,6 +74,36 @@ func (r *PokedexRepository) InsertPokedexDescriptions(descriptions []models.Poke
 	return nil
 }
 
+func (r *PokedexRepository) GetPokedexDescriptionsByPokedexID(pokedexID int) ([]*models.PokedexDescriptions, error) {
+	rows, err := r.db.Query(queries.GetPokedexDescriptionsByPokedexID, pokedexID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query: %w", err)
+	}
+	defer rows.Close()
+
+	var pokedexDescriptions []*models.PokedexDescriptions
+
+	for rows.Next() {
+		pokemonDescription := &models.PokedexDescriptions{}
+		err = rows.Scan(
+			&pokemonDescription.Language.Name,
+			&pokemonDescription.Description,
+			&pokedexID,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan row: %w", err)
+		}
+		pokedexDescriptions = append(pokedexDescriptions, pokemonDescription)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating rows: %w", err)
+	}
+	if pokedexDescriptions == nil {
+		return nil, fmt.Errorf("pokedex descriptions %d not found", pokedexID)
+	}
+	return pokedexDescriptions, nil
+}
+
 func (r *PokedexRepository) GetPokedexEntriesByPokedexID(pokedexID int) ([]*models.PokedexPokemonEntry, error) {
 	rows, err := r.db.Query(queries.GetPokedexPokemonEntryByID, pokedexID)
 	if err != nil {

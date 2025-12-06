@@ -29,5 +29,8 @@ var InsertPokedexPokemonEntry string
 //go:embed sql/pokedex/get_pokedex_pokemon_entry.sql
 var GetPokedexPokemonEntryByID string
 
+//go:embed sql/pokedex/get_pokedex_description.sql
+var GetPokedexDescriptionsByPokedexID string
+
 //go:embed sql/pokedex/get_pokedex.sql
 var GetPokedexByID string

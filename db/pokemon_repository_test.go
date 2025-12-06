@@ -42,4 +42,17 @@ func TestInsertPokemon(t *testing.T) {
 	if retrieved.Name != "pikachu" {
 		t.Errorf("Expected pikachu, got %s", retrieved.Name)
 	}
+
+	if retrieved.BaseExperience != pokemon.BaseExperience {
+		t.Errorf("Expected base_experience %d, got %d", pokemon.BaseExperience, retrieved.BaseExperience)
+	}
+	if retrieved.ID != pokemon.ID {
+		t.Errorf("Expected id %d, got %d", pokemon.ID, retrieved.ID)
+	}
+	if retrieved.Weight != pokemon.Weight {
+		t.Errorf("Expected weight %d, got %d", pokemon.Weight, retrieved.Weight)
+	}
+	if retrieved.Height != pokemon.Height {
+		t.Errorf("Expected height %d, got %d", pokemon.Height, retrieved.Height)
+	}
 }
