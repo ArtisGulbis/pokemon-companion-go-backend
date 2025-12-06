@@ -41,6 +41,22 @@ CREATE TABLE pokedex_pokemon (
     FOREIGN KEY (pokedex_id) REFERENCES pokedex(id) ON DELETE CASCADE
 );
 
+CREATE TABLE pokedex_pokemon_entries (
+    name TEXT NOT NULL,
+    entry_number INTEGER NOT NULL,
+    pokemon_id INTEGER NOT NULL,
+    pokedex_id INTEGER NOT NULL,
+    FOREIGN KEY (pokedex_id) REFERENCES pokedex(id) ON DELETE CASCADE
+);
+
+
+CREATE TABLE pokedex_version_groups (
+    name TEXT NOT NULL,
+    version_group_id INTEGER NOT NULL,
+    pokedex_id INTEGER NOT NULL,
+    FOREIGN KEY (pokedex_id) REFERENCES pokedex(id) ON DELETE CASCADE
+);
+
 CREATE TABLE pokemon_types (
     pokemon_id INTEGER NOT NULL,    -- Which Pokemon?
     type_id INTEGER NOT NULL,       -- Which Type?

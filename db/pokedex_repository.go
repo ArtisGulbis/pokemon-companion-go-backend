@@ -6,6 +6,7 @@ import (
 
 	"github.com/ArtisGulbis/pokemon-companion-go-backend/models"
 	"github.com/ArtisGulbis/pokemon-companion-go-backend/queries"
+	"github.com/ArtisGulbis/pokemon-companion-go-backend/utils"
 )
 
 type PokedexRepository struct {
@@ -35,6 +36,27 @@ func (r *PokedexRepository) InsertPokedex(p *models.Pokedex) error {
 	return nil
 }
 
+func (r *PokedexRepository) InsertPokedexPokemonEntry(pokemonEntry []models.PokedexPokemonEntry, pokedexID int) error {
+	stmt, err := r.db.Prepare(queries.InsertPokedexPokemonEntry)
+	if err != nil {
+		return fmt.Errorf("failed to prepare statement: %w", err)
+	}
+	defer stmt.Close()
+
+	for _, pe := range pokemonEntry {
+		pokemonID, err := utils.ExtractIDFromURL(pe.PokemonSpecies.Url)
+		if err != nil {
+			log.Fatal(err)
+		}
+		_, err = stmt.Exec(pe.PokemonSpecies.Name, pe.EntryNumber, pokemonID, pokedexID)
+		if err != nil {
+			return fmt.Errorf("failed to insert description: %w", err)
+		}
+	}
+
+	return nil
+}
+
 func (r *PokedexRepository) InsertPokedexDescriptions(descriptions []models.PokedexDescriptions, pokedexID int) error {
 	stmt, err := r.db.Prepare(queries.InsertPokemonDescriptions)
 	if err != nil {
@@ -50,6 +72,39 @@ func (r *PokedexRepository) InsertPokedexDescriptions(descriptions []models.Poke
 	}
 
 	return nil
+}
+
+func (r *PokedexRepository) GetPokedexEntriesByPokedexID(pokedexID int) ([]*models.PokedexPokemonEntry, error) {
+	rows, err := r.db.Query(queries.GetPokedexPokemonEntryByID, pokedexID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query: %w", err)
+	}
+	defer rows.Close()
+
+	var pokedexPokemonEntries []*models.PokedexPokemonEntry
+
+	for rows.Next() {
+		var ppe = &models.PokedexPokemonEntry{}
+		var pokemonID int
+		err = rows.Scan(
+			&ppe.PokemonSpecies.Name,
+			&ppe.EntryNumber,
+			&pokemonID,
+			&pokedexID,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan row: %w", err)
+		}
+		ppe.PokemonSpecies.Url = fmt.Sprintf("https://pokeapi.co/api/v2/pokemon-species/%d/", pokemonID)
+		pokedexPokemonEntries = append(pokedexPokemonEntries, ppe)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating rows: %w", err)
+	}
+	if pokedexPokemonEntries == nil {
+		return nil, fmt.Errorf("pokedex pokemon entry %d not found", pokedexID)
+	}
+	return pokedexPokemonEntries, nil
 }
 
 func (r *PokedexRepository) GetPokedexByID(id int) (*models.Pokedex, error) {

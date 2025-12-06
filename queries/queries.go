@@ -8,20 +8,26 @@ import (
 
 // Pokemon queries
 
-//go:embed sql/pokemon.sql
+//go:embed sql/pokemon/pokemon.sql
 var InsertPokemon string
 
 //go:embed sql/types.sql
 var InsertPokemonType string
 
-//go:embed sql/get_pokemon.sql
+//go:embed sql/pokemon/get_pokemon.sql
 var GetPokemonByID string
 
-//go:embed sql/pokedex.sql
+//go:embed sql/pokedex/pokedex.sql
 var InsertPokedex string
 
-//go:embed sql/pokedex_description.sql
+//go:embed sql/pokedex/pokedex_description.sql
 var InsertPokemonDescriptions string
 
-//go:embed sql/get_pokedex.sql
+//go:embed sql/pokedex/pokedex_pokemon_entry.sql
+var InsertPokedexPokemonEntry string
+
+//go:embed sql/pokedex/get_pokedex_pokemon_entry.sql
+var GetPokedexPokemonEntryByID string
+
+//go:embed sql/pokedex/get_pokedex.sql
 var GetPokedexByID string

@@ -30,6 +30,7 @@ type MockPokedexRepo struct {
 	InsertPokedexFunc             func(p *models.Pokedex) error
 	InsertPokedexDescriptionsFunc func(descriptions []models.PokedexDescriptions, pokedexId int) error
 	GetPokedexByIDFunc            func(id int) (*models.Pokedex, error)
+	InsertPokedexPokemonEntryFunc func(pokemonEntry []models.PokedexPokemonEntry, pokedexID int) error
 }
 
 func (m *MockPokedexRepo) InsertPokedex(p *models.Pokedex) error {
@@ -39,9 +40,16 @@ func (m *MockPokedexRepo) InsertPokedex(p *models.Pokedex) error {
 	return nil
 }
 
-func (m *MockPokedexRepo) InsertPokedexDescriptions(descriptions []models.PokedexDescriptions, pokedexId int) error {
+func (m *MockPokedexRepo) InsertPokedexDescriptions(descriptions []models.PokedexDescriptions, pokedexID int) error {
 	if m.InsertPokedexDescriptionsFunc != nil {
-		return m.InsertPokedexDescriptionsFunc(descriptions, pokedexId)
+		return m.InsertPokedexDescriptionsFunc(descriptions, pokedexID)
+	}
+	return nil
+}
+
+func (m *MockPokedexRepo) InsertPokedexPokemonEntry(pokemonEntry []models.PokedexPokemonEntry, pokedexID int) error {
+	if m.InsertPokedexPokemonEntryFunc != nil {
+		return m.InsertPokedexPokemonEntryFunc(pokemonEntry, pokedexID)
 	}
 	return nil
 }
@@ -57,6 +65,7 @@ func TestSyncAllPokedexes(t *testing.T) {
 	t.Run("Succesfully sync all pokedexes", func(t *testing.T) {
 		var insertedPokedexes []*models.Pokedex
 		var insertedDescriptions []models.PokedexDescriptions
+		var insertedPokemonEntries []models.PokedexPokemonEntry
 
 		mockClient := &MockPokedexAPIClient{
 			FetchAllFunc: func(path string) ([]models.Response, error) {
@@ -70,6 +79,22 @@ func TestSyncAllPokedexes(t *testing.T) {
 					ID:           id,
 					IsMainSeries: true,
 					Name:         "kanto",
+					PokemonEntries: []models.PokedexPokemonEntry{
+						{
+							EntryNumber: 1,
+							PokemonSpecies: models.Response{
+								Name: "pikachu",
+								Url:  "https://pokeapi.co/api/v2/pokemon/25/",
+							},
+						},
+						{
+							EntryNumber: 2,
+							PokemonSpecies: models.Response{
+								Name: "pikachu",
+								Url:  "https://pokeapi.co/api/v2/pokemon/25/",
+							},
+						},
+					},
 					Descriptions: []models.PokedexDescriptions{
 						{
 							Description: "Test description",
@@ -99,6 +124,10 @@ func TestSyncAllPokedexes(t *testing.T) {
 				insertedDescriptions = descriptions
 				return nil
 			},
+			InsertPokedexPokemonEntryFunc: func(pokemonEntry []models.PokedexPokemonEntry, pokedexID int) error {
+				insertedPokemonEntries = pokemonEntry
+				return nil
+			},
 		}
 
 		rateLimiter := time.NewTicker(650 * time.Millisecond)
@@ -117,6 +146,9 @@ func TestSyncAllPokedexes(t *testing.T) {
 
 		if len(insertedDescriptions) != 2 {
 			t.Errorf("Expected 2 Descriptions to be inserted, got %d", len(insertedDescriptions))
+		}
+		if len(insertedPokemonEntries) != 2 {
+			t.Errorf("Expected 2 Pokemon Entries to be inserted, got %d", len(insertedPokemonEntries))
 		}
 	})
 }
