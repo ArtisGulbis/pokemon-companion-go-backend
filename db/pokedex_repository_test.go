@@ -9,27 +9,16 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func setupTest(t *testing.T) *PokedexRepository {
-	db, err := New(":memory:")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	repo := NewPokedexRepository(db)
-
-	t.Cleanup(func() { db.Close() })
-
-	return repo
-}
-
 func TestInsertPokedex(t *testing.T) {
-	repo := setupTest(t)
+	db := setupTest(t)
 
 	pokedex := &models.Pokedex{
 		ID:           1,
 		Name:         "Unova",
 		IsMainSeries: true,
 	}
+
+	repo := NewPokedexRepository(db)
 
 	err := repo.InsertPokedex(pokedex)
 	if err != nil {
@@ -46,7 +35,7 @@ func TestInsertPokedex(t *testing.T) {
 }
 
 func TestInsertPokedexDescription(t *testing.T) {
-	repo := setupTest(t)
+	db := setupTest(t)
 
 	pokedexDescriptions := []models.PokedexDescriptions{
 		{
@@ -64,6 +53,8 @@ func TestInsertPokedexDescription(t *testing.T) {
 			},
 		},
 	}
+
+	repo := NewPokedexRepository(db)
 
 	pokedex := &models.Pokedex{
 		ID:           1,
@@ -103,7 +94,8 @@ func TestInsertPokedexDescription(t *testing.T) {
 }
 
 func TestInsertPokedexPokemonEntry(t *testing.T) {
-	repo := setupTest(t)
+	db := setupTest(t)
+	repo := NewPokedexRepository(db)
 
 	pokedex := &models.Pokedex{
 		ID:           1,
@@ -159,7 +151,8 @@ func TestInsertPokedexPokemonEntry(t *testing.T) {
 }
 
 func TestGetPokedexByID_WithAllRelations(t *testing.T) {
-	repo := setupTest(t)
+	db := setupTest(t)
+	repo := NewPokedexRepository(db)
 
 	pokedex := &models.Pokedex{
 		ID:           1,
