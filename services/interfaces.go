@@ -1,6 +1,6 @@
 package services
 
-import "github.com/ArtisGulbis/pokemon-companion-go-backend/models"
+import models "github.com/ArtisGulbis/pokemon-companion-go-backend/models/external"
 
 type PokemonAPIClient interface {
 	FetchAll(path string) ([]models.Response, error)

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/ArtisGulbis/pokemon-companion-go-backend/models"
+	models "github.com/ArtisGulbis/pokemon-companion-go-backend/models/external"
 )
 
 type Client struct {

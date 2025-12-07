@@ -57,4 +57,5 @@ func main() {
 
 	wg.Wait()
 	log.Printf("Sync complete! Time taken: %v", time.Since(startTime))
+
 }

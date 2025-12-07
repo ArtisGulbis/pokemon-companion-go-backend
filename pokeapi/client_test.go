@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/ArtisGulbis/pokemon-companion-go-backend/models"
+	models "github.com/ArtisGulbis/pokemon-companion-go-backend/models/external"
 )
 
 func TestFetchPokemon(t *testing.T) {

@@ -3,7 +3,7 @@ package db
 import (
 	"testing"
 
-	"github.com/ArtisGulbis/pokemon-companion-go-backend/models"
+	models "github.com/ArtisGulbis/pokemon-companion-go-backend/models/external"
 )
 
 func TestInsertPokemon(t *testing.T) {

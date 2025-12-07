@@ -1,4 +1,4 @@
-package models
+package external
 
 type Pokemon struct {
 	ID             int           `json:"id"`

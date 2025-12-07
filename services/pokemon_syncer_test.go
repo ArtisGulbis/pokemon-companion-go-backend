@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ArtisGulbis/pokemon-companion-go-backend/models"
+	models "github.com/ArtisGulbis/pokemon-companion-go-backend/models/external"
 )
 
 // MockPokemonAPIClient is a mock implementation of PokemonAPIClient

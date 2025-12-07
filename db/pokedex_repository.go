@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/ArtisGulbis/pokemon-companion-go-backend/models"
+	"github.com/ArtisGulbis/pokemon-companion-go-backend/models/dto"
+	"github.com/ArtisGulbis/pokemon-companion-go-backend/models/external"
 	"github.com/ArtisGulbis/pokemon-companion-go-backend/queries"
 	"github.com/ArtisGulbis/pokemon-companion-go-backend/utils"
 )
@@ -17,7 +18,7 @@ func NewPokedexRepository(db *Database) *PokedexRepository {
 	return &PokedexRepository{db: db}
 }
 
-func (r *PokedexRepository) InsertPokedex(p *models.Pokedex) error {
+func (r *PokedexRepository) InsertPokedex(p *external.Pokedex) error {
 	stmt, err := r.db.Prepare(queries.InsertPokedex)
 	if err != nil {
 		log.Fatal(err)
@@ -36,7 +37,7 @@ func (r *PokedexRepository) InsertPokedex(p *models.Pokedex) error {
 	return nil
 }
 
-func (r *PokedexRepository) InsertPokedexPokemonEntry(pokemonEntry []models.PokedexPokemonEntry, pokedexID int) error {
+func (r *PokedexRepository) InsertPokedexPokemonEntry(pokemonEntry []external.PokedexPokemonEntry, pokedexID int) error {
 	stmt, err := r.db.Prepare(queries.InsertPokedexPokemonEntry)
 	if err != nil {
 		return fmt.Errorf("failed to prepare statement: %w", err)
@@ -57,7 +58,7 @@ func (r *PokedexRepository) InsertPokedexPokemonEntry(pokemonEntry []models.Poke
 	return nil
 }
 
-func (r *PokedexRepository) InsertPokedexDescriptions(descriptions []models.PokedexDescriptions, pokedexID int) error {
+func (r *PokedexRepository) InsertPokedexDescriptions(descriptions []external.PokedexDescriptions, pokedexID int) error {
 	stmt, err := r.db.Prepare(queries.InsertPokemonDescriptions)
 	if err != nil {
 		return fmt.Errorf("failed to prepare statement: %w", err)
@@ -74,17 +75,17 @@ func (r *PokedexRepository) InsertPokedexDescriptions(descriptions []models.Poke
 	return nil
 }
 
-func (r *PokedexRepository) GetPokedexDescriptionsByPokedexID(pokedexID int) ([]*models.PokedexDescriptions, error) {
+func (r *PokedexRepository) GetPokedexDescriptionsByPokedexID(pokedexID int) ([]*external.PokedexDescriptions, error) {
 	rows, err := r.db.Query(queries.GetPokedexDescriptionsByPokedexID, pokedexID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query: %w", err)
 	}
 	defer rows.Close()
 
-	var pokedexDescriptions []*models.PokedexDescriptions
+	var pokedexDescriptions []*external.PokedexDescriptions
 
 	for rows.Next() {
-		pokemonDescription := &models.PokedexDescriptions{}
+		pokemonDescription := &external.PokedexDescriptions{}
 		err = rows.Scan(
 			&pokemonDescription.Language.Name,
 			&pokemonDescription.Description,
@@ -104,17 +105,17 @@ func (r *PokedexRepository) GetPokedexDescriptionsByPokedexID(pokedexID int) ([]
 	return pokedexDescriptions, nil
 }
 
-func (r *PokedexRepository) GetPokedexEntriesByPokedexID(pokedexID int) ([]*models.PokedexPokemonEntry, error) {
+func (r *PokedexRepository) GetPokedexEntriesByPokedexID(pokedexID int) ([]*external.PokedexPokemonEntry, error) {
 	rows, err := r.db.Query(queries.GetPokedexPokemonEntryByID, pokedexID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query: %w", err)
 	}
 	defer rows.Close()
 
-	var pokedexPokemonEntries []*models.PokedexPokemonEntry
+	var pokedexPokemonEntries []*external.PokedexPokemonEntry
 
 	for rows.Next() {
-		var ppe = &models.PokedexPokemonEntry{}
+		var ppe = &external.PokedexPokemonEntry{}
 		var pokemonID int
 		err = rows.Scan(
 			&ppe.PokemonSpecies.Name,
@@ -137,17 +138,17 @@ func (r *PokedexRepository) GetPokedexEntriesByPokedexID(pokedexID int) ([]*mode
 	return pokedexPokemonEntries, nil
 }
 
-func (r *PokedexRepository) GetPokedexByID(id int) (*models.Pokedex, error) {
+func (r *PokedexRepository) GetPokedexByID(id int) (*external.Pokedex, error) {
 	rows, err := r.db.Query(queries.GetPokedexByID, id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query: %w", err)
 	}
 	defer rows.Close()
 
-	var pokedex *models.Pokedex
+	var pokedex *external.Pokedex
 
 	for rows.Next() {
-		pokedex = &models.Pokedex{}
+		pokedex = &external.Pokedex{}
 		err = rows.Scan(
 			&pokedex.ID,
 			&pokedex.IsMainSeries,
@@ -165,4 +166,25 @@ func (r *PokedexRepository) GetPokedexByID(id int) (*models.Pokedex, error) {
 	}
 
 	return pokedex, nil
+}
+
+func (r *PokedexRepository) GetPokedexComplete(id int) (*dto.Pokedex, error) {
+	// 1. Fetch from database (returns external types)
+	pokedex, err := r.GetPokedexByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	descriptions, err := r.GetPokedexDescriptionsByPokedexID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	entries, err := r.GetPokedexEntriesByPokedexID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	// 2. Transform to DTO
+	return dto.NewPokedex(pokedex, descriptions, entries), nil
 }
