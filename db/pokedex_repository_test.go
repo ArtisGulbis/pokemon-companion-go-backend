@@ -242,11 +242,11 @@ func TestGetPokedexByID_WithAllRelations(t *testing.T) {
 			},
 			{
 				EntryNumber: 2,
-				Name:        "Ivsaur",
+				Name:        "Ivysaur",
 				SpeciesID:   2,
 			},
 		},
 	}
 
-	assert.Equal(t, expected, got)
+	assert.Equal(t, expected, *got)
 }
