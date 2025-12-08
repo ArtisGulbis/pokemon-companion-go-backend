@@ -6,7 +6,8 @@ import (
 	_ "embed" // Import for side effects to enable go:embed
 )
 
-// Pokemon queries
+//go:embed sql/version/version.sql
+var InsertVersion string
 
 //go:embed sql/pokemon/pokemon.sql
 var InsertPokemon string

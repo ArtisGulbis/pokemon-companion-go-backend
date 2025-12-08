@@ -6,6 +6,14 @@ DROP TABLE IF EXISTS pokedex_pokemon;
 DROP TABLE IF EXISTS pokemon_types;
 DROP TABLE IF EXISTS types;
 
+CREATE TABLE version_groups (
+    id INTEGER PRIMARY KEY,
+    name TEXT UNIQUE NOT NULL,           -- e.g., "black-white", "sword-shield"
+    generation_name TEXT NOT NULL        -- e.g., "generation-v"
+);
+
+
+
 CREATE TABLE pokemon (
     id INTEGER PRIMARY KEY,
     name TEXT NOT NULL,

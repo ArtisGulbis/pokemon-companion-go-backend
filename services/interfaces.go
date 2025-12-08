@@ -19,7 +19,5 @@ type PokemonRepo interface {
 
 type PokedexRepo interface {
 	InsertPokedex(p *models.Pokedex) error
-	InsertPokedexDescriptions(descriptions []models.PokedexDescriptions, pokedexID int) error
-	InsertPokedexPokemonEntry(pokemonEntry []models.PokedexPokemonEntry, pokedexID int) error
 	GetPokedexByID(id int) (*models.Pokedex, error)
 }

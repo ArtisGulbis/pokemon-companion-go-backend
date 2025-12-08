@@ -14,6 +14,12 @@ func TestInsertPokemon(t *testing.T) {
 	}
 	defer db.Close()
 
+	// Insert the species first (required by foreign key)
+	_, err = db.Exec(`INSERT INTO species (id, name, is_legendary, is_mythical) VALUES (25, 'pikachu', FALSE, FALSE)`)
+	if err != nil {
+		t.Fatalf("Failed to insert species: %v", err)
+	}
+
 	repo := NewPokemonRepository(db)
 
 	// Test data
@@ -23,6 +29,8 @@ func TestInsertPokemon(t *testing.T) {
 		Height:         4,
 		Weight:         60,
 		BaseExperience: 25,
+		SpeciesID:      25,
+		IsDefault:      true,
 	}
 
 	// Act

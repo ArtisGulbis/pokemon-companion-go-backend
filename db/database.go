@@ -9,7 +9,7 @@ import (
 	_ "github.com/glebarez/go-sqlite"
 )
 
-//go:embed schema.sql
+//go:embed schema2.sql
 var schemaSQL string
 
 type Database struct {

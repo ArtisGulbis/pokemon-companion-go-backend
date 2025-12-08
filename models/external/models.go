@@ -7,14 +7,21 @@ type Pokemon struct {
 	Weight         int           `json:"weight"`
 	BaseExperience int           `json:"base_experience"`
 	Types          []PokemonType `json:"types"`
+	SpeciesID      int           `json:"species_id"`
+	IsDefault      bool          `json:"is_default"`
+}
+
+type Version struct {
+	ID           int        `json:"id"`
+	Name         string     `json:"name"`
+	Names        []Response `json:"names"`
+	VersionGroup Response   `json:"version_group"`
 }
 
 type Pokedex struct {
-	ID             int                   `json:"id"`
-	IsMainSeries   bool                  `json:"is_main_series"`
-	Name           string                `json:"name"`
-	Descriptions   []PokedexDescriptions `json:"descriptions"`
-	PokemonEntries []PokedexPokemonEntry `json:"pokemon_entries"`
+	ID     int      `json:"id"`
+	Name   string   `json:"name"`
+	Region Response `json:"region"`
 }
 
 type PokedexPokemonEntry struct {

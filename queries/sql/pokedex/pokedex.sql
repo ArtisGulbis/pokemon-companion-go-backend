@@ -1,2 +1,2 @@
-INSERT INTO pokedex (id, is_main_series, name)
+INSERT INTO pokedexes (id, name, region_name)
 VALUES (?, ?, ?)

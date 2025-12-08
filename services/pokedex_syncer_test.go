@@ -27,29 +27,13 @@ func (m *MockPokedexAPIClient) FetchPokedex(id int) (*models.Pokedex, error) {
 }
 
 type MockPokedexRepo struct {
-	InsertPokedexFunc             func(p *models.Pokedex) error
-	InsertPokedexDescriptionsFunc func(descriptions []models.PokedexDescriptions, pokedexId int) error
-	GetPokedexByIDFunc            func(id int) (*models.Pokedex, error)
-	InsertPokedexPokemonEntryFunc func(pokemonEntry []models.PokedexPokemonEntry, pokedexID int) error
+	InsertPokedexFunc  func(p *models.Pokedex) error
+	GetPokedexByIDFunc func(id int) (*models.Pokedex, error)
 }
 
 func (m *MockPokedexRepo) InsertPokedex(p *models.Pokedex) error {
 	if m.InsertPokedexFunc != nil {
 		return m.InsertPokedexFunc(p)
-	}
-	return nil
-}
-
-func (m *MockPokedexRepo) InsertPokedexDescriptions(descriptions []models.PokedexDescriptions, pokedexID int) error {
-	if m.InsertPokedexDescriptionsFunc != nil {
-		return m.InsertPokedexDescriptionsFunc(descriptions, pokedexID)
-	}
-	return nil
-}
-
-func (m *MockPokedexRepo) InsertPokedexPokemonEntry(pokemonEntry []models.PokedexPokemonEntry, pokedexID int) error {
-	if m.InsertPokedexPokemonEntryFunc != nil {
-		return m.InsertPokedexPokemonEntryFunc(pokemonEntry, pokedexID)
 	}
 	return nil
 }
@@ -64,8 +48,6 @@ func (m *MockPokedexRepo) GetPokedexByID(id int) (*models.Pokedex, error) {
 func TestSyncAllPokedexes(t *testing.T) {
 	t.Run("Succesfully sync all pokedexes", func(t *testing.T) {
 		var insertedPokedexes []*models.Pokedex
-		var insertedDescriptions []models.PokedexDescriptions
-		var insertedPokemonEntries []models.PokedexPokemonEntry
 
 		mockClient := &MockPokedexAPIClient{
 			FetchAllFunc: func(path string) ([]models.Response, error) {
@@ -76,40 +58,11 @@ func TestSyncAllPokedexes(t *testing.T) {
 			},
 			FetchPokedexFunc: func(id int) (*models.Pokedex, error) {
 				return &models.Pokedex{
-					ID:           id,
-					IsMainSeries: true,
-					Name:         "kanto",
-					PokemonEntries: []models.PokedexPokemonEntry{
-						{
-							EntryNumber: 1,
-							PokemonSpecies: models.Response{
-								Name: "pikachu",
-								Url:  "https://pokeapi.co/api/v2/pokemon/25/",
-							},
-						},
-						{
-							EntryNumber: 2,
-							PokemonSpecies: models.Response{
-								Name: "pikachu",
-								Url:  "https://pokeapi.co/api/v2/pokemon/25/",
-							},
-						},
-					},
-					Descriptions: []models.PokedexDescriptions{
-						{
-							Description: "Test description",
-							Language: models.Response{
-								Name: "en",
-								Url:  "test url",
-							},
-						},
-						{
-							Description: "Test description",
-							Language: models.Response{
-								Name: "en",
-								Url:  "test url",
-							},
-						},
+					ID:   id,
+					Name: "kanto",
+					Region: models.Response{
+						Name: "",
+						Url:  "",
 					},
 				}, nil
 			},
@@ -118,14 +71,6 @@ func TestSyncAllPokedexes(t *testing.T) {
 		mockRepo := &MockPokedexRepo{
 			InsertPokedexFunc: func(p *models.Pokedex) error {
 				insertedPokedexes = append(insertedPokedexes, p)
-				return nil
-			},
-			InsertPokedexDescriptionsFunc: func(descriptions []models.PokedexDescriptions, pokedexId int) error {
-				insertedDescriptions = descriptions
-				return nil
-			},
-			InsertPokedexPokemonEntryFunc: func(pokemonEntry []models.PokedexPokemonEntry, pokedexID int) error {
-				insertedPokemonEntries = pokemonEntry
 				return nil
 			},
 		}
@@ -142,13 +87,6 @@ func TestSyncAllPokedexes(t *testing.T) {
 
 		if len(insertedPokedexes) != 2 {
 			t.Errorf("Expected 2 Pokedexes to be inserted, got %d", len(insertedPokedexes))
-		}
-
-		if len(insertedDescriptions) != 2 {
-			t.Errorf("Expected 2 Descriptions to be inserted, got %d", len(insertedDescriptions))
-		}
-		if len(insertedPokemonEntries) != 2 {
-			t.Errorf("Expected 2 Pokemon Entries to be inserted, got %d", len(insertedPokemonEntries))
 		}
 	})
 }

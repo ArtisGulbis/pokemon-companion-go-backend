@@ -27,8 +27,8 @@ func (r *PokedexRepository) InsertPokedex(p *external.Pokedex) error {
 
 	_, err = stmt.Exec(
 		p.ID,
-		p.IsMainSeries,
 		p.Name,
+		p.Region.Name,
 	)
 	if err != nil {
 		log.Fatal(err)
@@ -151,8 +151,8 @@ func (r *PokedexRepository) GetPokedexByID(id int) (*external.Pokedex, error) {
 		pokedex = &external.Pokedex{}
 		err = rows.Scan(
 			&pokedex.ID,
-			&pokedex.IsMainSeries,
 			&pokedex.Name,
+			&pokedex.Region.Name,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan row: %w", err)
@@ -174,17 +174,6 @@ func (r *PokedexRepository) GetPokedexComplete(id int) (*dto.Pokedex, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	descriptions, err := r.GetPokedexDescriptionsByPokedexID(id)
-	if err != nil {
-		return nil, err
-	}
-
-	entries, err := r.GetPokedexEntriesByPokedexID(id)
-	if err != nil {
-		return nil, err
-	}
-
 	// 2. Transform to DTO
-	return dto.NewPokedex(pokedex, descriptions, entries), nil
+	return dto.NewPokedex(pokedex), nil
 }

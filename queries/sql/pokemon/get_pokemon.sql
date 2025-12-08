@@ -4,10 +4,9 @@ SELECT
     p.height,
     p.weight,
     p.base_experience,
-    t.name AS type_name,
+    pt.type_name,
     pt.slot AS type_slot
 FROM pokemon p
 LEFT JOIN pokemon_types pt ON p.id = pt.pokemon_id
-LEFT JOIN types t ON pt.type_id = t.id
 WHERE p.id = ?
 ORDER BY pt.slot;

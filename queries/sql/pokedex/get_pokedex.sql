@@ -1,5 +1,5 @@
 SELECT
     p.id,
-    p.is_main_series,
+    p.region_name,
     p.name
-FROM pokedex p
+FROM pokedexes p

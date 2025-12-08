@@ -17,43 +17,15 @@ func NewClient(baseURL string) *Client {
 }
 
 func (c *Client) FetchPokemon(id int) (*models.Pokemon, error) {
-	url := fmt.Sprintf("%s/api/v2/pokemon/%d", c.BaseURL, id)
-	resp, err := http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
+	return fetchByID[models.Pokemon](c, "pokemon", id)
+}
 
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed to fetch pokemon: %s", resp.Status)
-	}
-
-	var pokemon models.Pokemon
-	if err := json.NewDecoder(resp.Body).Decode(&pokemon); err != nil {
-		return nil, fmt.Errorf("failed to decode pokemon: %w", err)
-	}
-
-	return &pokemon, nil
+func (c *Client) FetchVersion(id int) (*models.Version, error) {
+	return fetchByID[models.Version](c, "version", id)
 }
 
 func (c *Client) FetchPokedex(id int) (*models.Pokedex, error) {
-	url := fmt.Sprintf("%s/api/v2/pokedex/%d", c.BaseURL, id)
-	resp, err := http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed to fetch pokedex: %s", resp.Status)
-	}
-
-	var pokedex models.Pokedex
-	if err := json.NewDecoder(resp.Body).Decode(&pokedex); err != nil {
-		return nil, fmt.Errorf("failed to decode pokedex: %w", err)
-	}
-
-	return &pokedex, nil
+	return fetchByID[models.Pokedex](c, "pokedex", id)
 }
 
 func (c *Client) FetchAll(path string) ([]models.Response, error) {
@@ -74,4 +46,24 @@ func (c *Client) FetchAll(path string) ([]models.Response, error) {
 	}
 
 	return paginatedResponse.Results, nil
+}
+
+func fetchByID[T any](c *Client, resource string, id int) (*T, error) {
+	url := fmt.Sprintf("%s/api/v2/%s/%d", c.BaseURL, resource, id)
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("failed to fetch %s: %s", resource, resp.Status)
+	}
+
+	var result T
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, fmt.Errorf("failed to decode %s: %w", resource, err)
+	}
+
+	return &result, nil
 }

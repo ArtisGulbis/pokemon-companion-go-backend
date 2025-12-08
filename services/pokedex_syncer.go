@@ -48,14 +48,6 @@ func (s *PokedexSyncer) SyncAll(limit int) error {
 			log.Fatalf("Failed to insert pokedex ID %d: %v", pokedex.ID, err)
 		}
 
-		err = s.repo.InsertPokedexDescriptions(pokedex.Descriptions, pokedex.ID)
-		if err != nil {
-			log.Fatalf("Failed to insert descriptions for pokedex ID %d: %v", pokedex.ID, err)
-		}
-		err = s.repo.InsertPokedexPokemonEntry(pokedex.PokemonEntries, pokedex.ID)
-		if err != nil {
-			log.Fatalf("Failed to insert pokemon entries for pokedex ID %d: %v", pokedex.ID, err)
-		}
 		fmt.Printf("Inserted Pokedex %s (%d/%d)\n", pokedex.Name, i+1, len(allPokedexes))
 	}
 	return nil

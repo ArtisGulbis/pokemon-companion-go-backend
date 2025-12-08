@@ -31,6 +31,8 @@ func (r *PokemonRepository) InsertPokemon(p *models.Pokemon) error {
 		p.Height,
 		p.Weight,
 		p.BaseExperience,
+		p.SpeciesID,
+		p.IsDefault,
 	)
 	if err != nil {
 		log.Fatal(err)
