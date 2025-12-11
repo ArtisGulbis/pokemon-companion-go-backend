@@ -4,7 +4,6 @@ import (
 	"flag"
 	"log"
 	"os"
-	"sync"
 	"time"
 
 	"github.com/ArtisGulbis/pokemon-companion-go-backend/db"
@@ -30,32 +29,19 @@ func main() {
 	rateLimiter := time.NewTicker(650 * time.Millisecond)
 	defer rateLimiter.Stop()
 
-	pokemonRepo := db.NewPokemonRepository(database)
-	pokedexRepo := db.NewPokedexRepository(database)
+	// pokemonRepo := db.NewPokemonRepository(database)
+	//pokedexRepo := db.NewPokedexRepository(database)
+	versionRepo := db.NewVersionRepository(database)
 
-	pokemonSyncer := services.NewPokemonSyncer(client, pokemonRepo, rateLimiter)
-	pokedexSyncer := services.NewPokedexSyncer(client, pokedexRepo, rateLimiter)
-
-	var wg sync.WaitGroup
+	//pokemonSyncer := services.NewPokemonSyncer(client, pokemonRepo, rateLimiter)
+	versionSyncer := services.NewVersionSyncer(client, versionRepo, rateLimiter)
 
 	startTime := time.Now()
 
-	// 3. Sync Pokemon
-	log.Printf("Syncing %d Pokemon...", *limit)
-	wg.Go(func() {
-		if err := pokemonSyncer.SyncAll(*limit); err != nil {
-			log.Fatal(err)
-		}
-	})
+	log.Printf("Syncing %d Versions...", *limit)
+	if err := versionSyncer.SyncAll(*limit); err != nil {
+		log.Fatal(err)
+	}
 
-	log.Printf("Syncing %d Pokedexes...", *limit)
-	wg.Go(func() {
-		if err := pokedexSyncer.SyncAll(*limit); err != nil {
-			log.Fatal(err)
-		}
-	})
-
-	wg.Wait()
 	log.Printf("Sync complete! Time taken: %v", time.Since(startTime))
-
 }

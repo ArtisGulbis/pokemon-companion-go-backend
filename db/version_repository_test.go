@@ -10,7 +10,6 @@ import (
 )
 
 func TestInsertVersion(t *testing.T) {
-	t.Skip("Version repository not implemented yet")
 	db := setupTest(t)
 
 	version := &models.Version{
@@ -18,19 +17,23 @@ func TestInsertVersion(t *testing.T) {
 		Name: "red",
 		Names: []models.Response{
 			{
-				Name: "",
+				Name: "yellow",
 				Url:  "",
 			},
 		},
 		VersionGroup: models.Response{
-			Name: "",
-			Url:  "",
+			Name: "yellow",
+			Url:  "https://pokeapi.co/api/v2/version-group/1/",
 		},
+	}
+	_, err := db.Exec(`INSERT INTO version_groups (id, name, generation_name) VALUES (1, "yellow", "yellow")`)
+	if err != nil {
+		t.Fatalf("Failed to insert: %v", err)
 	}
 
 	repo := NewVersionRepository(db)
 
-	err := repo.InsertVersion(version)
+	err = repo.InsertVersion(version)
 	if err != nil {
 		t.Fatalf("Failed to insert: %v", err)
 	}
@@ -39,6 +42,11 @@ func TestInsertVersion(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, got)
 
-	expected := &dto.Version{}
+	expected := &dto.Version{
+		ID:             1,
+		Name:           "red",
+		DisplayName:    "red",
+		VersionGroupID: 1,
+	}
 	assert.Equal(t, expected, got)
 }

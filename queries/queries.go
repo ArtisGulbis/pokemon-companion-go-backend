@@ -35,3 +35,6 @@ var GetPokedexDescriptionsByPokedexID string
 
 //go:embed sql/pokedex/get_pokedex.sql
 var GetPokedexByID string
+
+//go:embed sql/version/get_version.sql
+var GetVersionByID string

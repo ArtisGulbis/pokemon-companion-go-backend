@@ -10,7 +10,7 @@ type Pokedex struct {
 	RegionName string `json:"regionName"`
 }
 
-type Version struct {
+type LocalizedName struct {
 	Language    string `json:"language"`
 	Description string `json:"description"`
 }
