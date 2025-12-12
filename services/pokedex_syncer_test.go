@@ -52,7 +52,7 @@ func TestSyncAllPokedexes(t *testing.T) {
 			{Name: "kanto", Url: "https://pokeapi.co/api/v2/pokedex/1/"},
 		}, nil)
 
-		mockClient.On("FetchPokedex", "kanto").Return(&external.Pokedex{
+		mockClient.On("FetchPokedex", 1).Return(&external.Pokedex{
 			ID:   1,
 			Name: "kanto",
 			Region: external.Response{

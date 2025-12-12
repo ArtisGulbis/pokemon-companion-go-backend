@@ -37,8 +37,8 @@ func (s *VersionSyncer) SyncVersion(id int) (*external.Version, error) {
 	return version, nil
 }
 
-func (s *VersionSyncer) SyncVersionGroup(name string) (*external.VersionGroup, error) {
-	versionGroup, err := s.client.FetchVersionGroup(name)
+func (s *VersionSyncer) SyncVersionGroup(id int) (*external.VersionGroup, error) {
+	versionGroup, err := s.client.FetchVersionGroup(id)
 	if err != nil {
 		return nil, err
 	}

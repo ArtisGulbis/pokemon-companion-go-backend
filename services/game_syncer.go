@@ -11,13 +11,24 @@ func (g *GameSyncer) SyncGame(id int) error {
 	// 	return err
 	// }
 
-	// versionGroup, err := g.versionSyncer.SyncVersionGroup(version.VersionGroup.Name)
+	// versionGroupId, err := utils.ExtractIDFromURL(version.VersionGroup.Url)
+	// if err != nil {
+	// 	return err
+	// }
+	// versionGroup, err := g.versionSyncer.SyncVersionGroup(versionGroupId)
 	// if err != nil {
 	// 	return err
 	// }
 
 	// for _, pdex := range versionGroup.Pokedexes {
-	// 	pokedex := g.pokedexSyncer.SyncPokedex(pdex.Name)
+	// 	pokedexId, err := utils.ExtractIDFromURL(pdex.Url)
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// 	pokedex, err := g.pokedexSyncer.SyncPokedex(pokedexId)
+	// 	if err != nil {
+	// 		return err
+	// 	}
 	// }
 
 	return nil

@@ -3,7 +3,8 @@ package db
 import (
 	"testing"
 
-	models "github.com/ArtisGulbis/pokemon-companion-go-backend/models/external"
+	"github.com/ArtisGulbis/pokemon-companion-go-backend/models/external"
+	"github.com/stretchr/testify/require"
 )
 
 func TestInsertPokemon(t *testing.T) {
@@ -23,7 +24,7 @@ func TestInsertPokemon(t *testing.T) {
 	repo := NewPokemonRepository(db)
 
 	// Test data
-	pokemon := &models.Pokemon{
+	pokemon := &external.Pokemon{
 		ID:             25,
 		Name:           "pikachu",
 		Height:         4,
@@ -63,4 +64,43 @@ func TestInsertPokemon(t *testing.T) {
 	if retrieved.Height != pokemon.Height {
 		t.Errorf("Expected height %d, got %d", pokemon.Height, retrieved.Height)
 	}
+}
+
+func TestInsertVersionGroupPokedex(t *testing.T) {
+	db, err := New(":memory:")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	repo := NewPokedexRepository(db)
+
+	// Test data
+	versionGroupPokedex := &external.VersionGroup{
+		ID:   1,
+		Name: "johto",
+		Generation: external.Response{
+			Name: "",
+			Url:  "",
+		},
+		Pokedexes: []external.Response{
+			{
+				Name: "johto",
+				Url:  "https://pokeapi.co/api/v2/pokedex/1/",
+			},
+		},
+	}
+
+	_, err = db.Exec(`INSERT INTO version_groups (id, name, generation_name) VALUES (1, "yellow", "yellow")`)
+	if err != nil {
+		t.Fatalf("Failed to insert: %v", err)
+	}
+
+	_, err = db.Exec(`INSERT INTO pokedexes (id, name, region_name) VALUES (1, "yellow", "yellow")`)
+	if err != nil {
+		t.Fatalf("Failed to insert: %v", err)
+	}
+
+	err = repo.InsertVersionGroupPokedex(versionGroupPokedex)
+	require.NoError(t, err)
 }

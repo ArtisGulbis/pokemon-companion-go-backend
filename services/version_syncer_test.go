@@ -21,8 +21,8 @@ func (m *MockVersionAPIClient) FetchAll(path string) ([]external.Response, error
 	return args.Get(0).([]external.Response), args.Error(1)
 }
 
-func (m *MockVersionAPIClient) FetchVersionGroup(name string) (*external.VersionGroup, error) {
-	args := m.Called(name)
+func (m *MockVersionAPIClient) FetchVersionGroup(id int) (*external.VersionGroup, error) {
+	args := m.Called(id)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
@@ -133,7 +133,7 @@ func TestSyncVersionGroup(t *testing.T) {
 		syncer := NewVersionSyncer(mockClient, mockRepo, rateLimiter)
 
 		// Act
-		response, err := syncer.SyncVersionGroup("red")
+		response, err := syncer.SyncVersionGroup(1)
 		if err != nil {
 			t.Fatalf("Failed to sync version group %v", err)
 		}

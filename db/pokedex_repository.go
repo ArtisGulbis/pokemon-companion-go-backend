@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/ArtisGulbis/pokemon-companion-go-backend/models/dto"
 	"github.com/ArtisGulbis/pokemon-companion-go-backend/models/external"
 	"github.com/ArtisGulbis/pokemon-companion-go-backend/queries"
 	"github.com/ArtisGulbis/pokemon-companion-go-backend/utils"
@@ -32,6 +31,30 @@ func (r *PokedexRepository) InsertPokedex(p *external.Pokedex) error {
 	)
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	return nil
+}
+
+func (r *PokedexRepository) InsertVersionGroupPokedex(versionGroupPokedex *external.VersionGroup) error {
+	stmt, err := r.db.Prepare(queries.InsertVersionGroupPokedex)
+	if err != nil {
+		return fmt.Errorf("failed to prepare statement: %w", err)
+	}
+	defer stmt.Close()
+
+	for _, pdex := range versionGroupPokedex.Pokedexes {
+		pokedexId, err := utils.ExtractIDFromURL(pdex.Url)
+		if err != nil {
+			return err
+		}
+		_, err = stmt.Exec(
+			versionGroupPokedex.ID,
+			pokedexId,
+		)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	return nil
@@ -166,14 +189,4 @@ func (r *PokedexRepository) GetPokedexByID(id int) (*external.Pokedex, error) {
 	}
 
 	return pokedex, nil
-}
-
-func (r *PokedexRepository) GetPokedexComplete(id int) (*dto.Pokedex, error) {
-	// 1. Fetch from database (returns external types)
-	pokedex, err := r.GetPokedexByID(id)
-	if err != nil {
-		return nil, err
-	}
-	// 2. Transform to DTO
-	return dto.NewPokedex(pokedex), nil
 }
