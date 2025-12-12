@@ -21,8 +21,8 @@ func (m *MockVersionAPIClient) FetchAll(path string) ([]external.Response, error
 	return args.Get(0).([]external.Response), args.Error(1)
 }
 
-func (m *MockVersionAPIClient) FetchVersionGroup(id int) (*external.VersionGroup, error) {
-	args := m.Called(id)
+func (m *MockVersionAPIClient) FetchVersionGroup(name string) (*external.VersionGroup, error) {
+	args := m.Called(name)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
@@ -115,6 +115,12 @@ func TestSyncVersionGroup(t *testing.T) {
 				Name: "generation-i",
 				Url:  "https://pokeapi.co/api/v2/version-group/1/",
 			},
+			Pokedexes: []external.Response{
+				{
+					Name: "original-johto",
+					Url:  "https://pokeapi.co/api/v2/pokedex/3/",
+				},
+			},
 		}
 
 		mockClient.On("FetchVersionGroup", 1).Return(mockResponse, nil)
@@ -127,7 +133,7 @@ func TestSyncVersionGroup(t *testing.T) {
 		syncer := NewVersionSyncer(mockClient, mockRepo, rateLimiter)
 
 		// Act
-		response, err := syncer.SyncVersionGroup(1)
+		response, err := syncer.SyncVersionGroup("red")
 		if err != nil {
 			t.Fatalf("Failed to sync version group %v", err)
 		}

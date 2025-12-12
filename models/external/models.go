@@ -19,9 +19,10 @@ type Version struct {
 }
 
 type VersionGroup struct {
-	ID         int      `json:"id"`
-	Name       string   `json:"name"`
-	Generation Response `json:"generation"`
+	ID         int        `json:"id"`
+	Name       string     `json:"name"`
+	Generation Response   `json:"generation"`
+	Pokedexes  []Response `json:"pokedexes"`
 }
 
 type Pokedex struct {

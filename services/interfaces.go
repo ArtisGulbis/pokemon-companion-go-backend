@@ -13,7 +13,7 @@ type PokemonAPIClient interface {
 type VersionAPIClient interface {
 	FetchAll(path string) ([]external.Response, error)
 	FetchVersion(id int) (*external.Version, error)
-	FetchVersionGroup(id int) (*external.VersionGroup, error)
+	FetchVersionGroup(name string) (*external.VersionGroup, error)
 }
 
 type PokedexAPIClient interface {

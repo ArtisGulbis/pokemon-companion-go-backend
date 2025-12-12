@@ -5,6 +5,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/ArtisGulbis/pokemon-companion-go-backend/models/external"
 	"github.com/ArtisGulbis/pokemon-companion-go-backend/utils"
 )
 
@@ -20,6 +21,20 @@ func NewPokedexSyncer(client PokedexAPIClient, repo PokedexRepo, rateLimiter *ti
 		repo:        repo,
 		rateLimiter: rateLimiter,
 	}
+}
+
+func (s *PokedexSyncer) SyncPokedex(id int) (*external.Pokedex, error) {
+	pokedex, err := s.client.FetchPokedex(id)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.repo.InsertPokedex(pokedex)
+	if err != nil {
+		return nil, err
+	}
+
+	return pokedex, nil
 }
 
 func (s *PokedexSyncer) SyncAll(limit int) error {
