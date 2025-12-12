@@ -5,6 +5,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/ArtisGulbis/pokemon-companion-go-backend/models/external"
 	"github.com/ArtisGulbis/pokemon-companion-go-backend/utils"
 )
 
@@ -20,6 +21,34 @@ func NewVersionSyncer(client VersionAPIClient, repo VersionRepo, rateLimiter *ti
 		repo:        repo,
 		rateLimiter: rateLimiter,
 	}
+}
+
+func (s *VersionSyncer) SyncVersion(id int) (*external.Version, error) {
+	version, err := s.client.FetchVersion(id)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.repo.InsertVersion(version)
+	if err != nil {
+		return nil, err
+	}
+
+	return version, nil
+}
+
+func (s *VersionSyncer) SyncVersionGroup(id int) (*external.VersionGroup, error) {
+	versionGroup, err := s.client.FetchVersionGroup(id)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.repo.InsertVersionGroup(versionGroup)
+	if err != nil {
+		return nil, err
+	}
+
+	return versionGroup, nil
 }
 
 func (s *VersionSyncer) SyncAll(limit int) error {

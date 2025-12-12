@@ -42,6 +42,25 @@ func (r *VersionRepository) InsertVersion(v *external.Version) error {
 	return nil
 }
 
+func (r *VersionRepository) InsertVersionGroup(v *external.VersionGroup) error {
+	stmt, err := r.db.Prepare(queries.InsertVersionGroup)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(
+		v.ID,
+		v.Name,
+		v.Generation.Name,
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (r *VersionRepository) GetVersionByID(id int) (*dto.Version, error) {
 	rows, err := r.db.Query(queries.GetVersionByID, id)
 	if err != nil {

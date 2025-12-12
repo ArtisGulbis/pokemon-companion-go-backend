@@ -24,6 +24,10 @@ func (c *Client) FetchVersion(id int) (*models.Version, error) {
 	return fetchByID[models.Version](c, "version", id)
 }
 
+func (c *Client) FetchVersionGroup(id int) (*models.VersionGroup, error) {
+	return fetchByID[models.VersionGroup](c, "version-group", id)
+}
+
 func (c *Client) FetchPokedex(id int) (*models.Pokedex, error) {
 	return fetchByID[models.Pokedex](c, "pokedex", id)
 }

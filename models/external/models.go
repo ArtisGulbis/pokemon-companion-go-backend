@@ -18,6 +18,12 @@ type Version struct {
 	VersionGroup Response   `json:"version_group"`
 }
 
+type VersionGroup struct {
+	ID         int      `json:"id"`
+	Name       string   `json:"name"`
+	Generation Response `json:"generation"`
+}
+
 type Pokedex struct {
 	ID     int      `json:"id"`
 	Name   string   `json:"name"`
