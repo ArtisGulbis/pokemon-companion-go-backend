@@ -23,6 +23,14 @@ func NewPokedexSyncer(client PokedexAPIClient, repo PokedexRepo, rateLimiter *ti
 	}
 }
 
+func (s *PokedexSyncer) InsertPokedex(pd *external.Pokedex) error {
+	return s.repo.InsertPokedex(pd)
+}
+
+func (s *PokedexSyncer) FetchPokedex(id int) (*external.Pokedex, error) {
+	return s.client.FetchPokedex(id)
+}
+
 func (s *PokedexSyncer) SyncPokedex(id int) (*external.Pokedex, error) {
 	pokedex, err := s.client.FetchPokedex(id)
 	if err != nil {

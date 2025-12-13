@@ -30,6 +30,7 @@ type VersionRepo interface {
 
 type PokemonRepo interface {
 	InsertPokemon(p *external.Pokemon) error
+	InsertSpecies(p *external.Species) error
 	GetPokemonByID(id int) (*external.Pokemon, error)
 }
 

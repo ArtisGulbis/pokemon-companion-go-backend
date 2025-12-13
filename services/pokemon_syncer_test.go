@@ -43,6 +43,11 @@ func (m *MockPokemonRepo) InsertPokemon(p *external.Pokemon) error {
 	return args.Error(0)
 }
 
+func (m *MockPokemonRepo) InsertSpecies(p *external.Species) error {
+	args := m.Called(p)
+	return args.Error(0)
+}
+
 func (m *MockPokemonRepo) GetPokemonByID(id int) (*external.Pokemon, error) {
 	args := m.Called(id)
 	if args.Get(0) == nil {

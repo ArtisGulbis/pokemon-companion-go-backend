@@ -13,7 +13,6 @@ import (
 )
 
 func main() {
-	limit := flag.Int("limit", 10, "Number of Pokemon to sync")
 	flag.Parse()
 
 	// 1. Setup database
@@ -24,22 +23,32 @@ func main() {
 	}
 	defer database.Close()
 
-	// 2. Create dependencies
+	// 2. Create API client and rate limiter (shared by all syncers)
 	client := pokeapi.NewClient("https://pokeapi.co")
 	rateLimiter := time.NewTicker(650 * time.Millisecond)
 	defer rateLimiter.Stop()
 
-	// pokemonRepo := db.NewPokemonRepository(database)
-	//pokedexRepo := db.NewPokedexRepository(database)
+	// 3. Create repositories
 	versionRepo := db.NewVersionRepository(database)
+	pokedexRepo := db.NewPokedexRepository(database)
+	pokemonRepo := db.NewPokemonRepository(database)
 
-	//pokemonSyncer := services.NewPokemonSyncer(client, pokemonRepo, rateLimiter)
+	// 4. Create syncers (the building blocks)
 	versionSyncer := services.NewVersionSyncer(client, versionRepo, rateLimiter)
+	pokedexSyncer := services.NewPokedexSyncer(client, pokedexRepo, rateLimiter)
+	pokemonSyncer := services.NewPokemonSyncer(client, pokemonRepo, rateLimiter)
 
+	// 5. Create game syncer (the orchestrator)
+	gameSyncer := services.NewGameSyncer(
+		versionSyncer,
+		pokedexSyncer,
+		pokemonSyncer,
+	)
+
+	// 6. Run the sync
 	startTime := time.Now()
 
-	log.Printf("Syncing %d Versions...", *limit)
-	if err := versionSyncer.SyncAll(*limit); err != nil {
+	if err := gameSyncer.SyncGame(1); err != nil {
 		log.Fatal(err)
 	}
 

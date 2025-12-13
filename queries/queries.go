@@ -9,7 +9,7 @@ import (
 //go:embed sql/version/version.sql
 var InsertVersion string
 
-//go:embed sql/version/version.sql
+//go:embed sql/version/version_group.sql
 var InsertVersionGroup string
 
 //go:embed sql/pokedex/version_group_pokedex.sql

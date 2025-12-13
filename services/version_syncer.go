@@ -23,17 +23,30 @@ func NewVersionSyncer(client VersionAPIClient, repo VersionRepo, rateLimiter *ti
 	}
 }
 
+func (s *VersionSyncer) InsertVersion(v *external.Version) error {
+	return s.repo.InsertVersion(v)
+}
+
+func (s *VersionSyncer) InsertVersionGroup(vg *external.VersionGroup) error {
+	return s.repo.InsertVersionGroup(vg)
+}
+
+func (s *VersionSyncer) FetchVersion(id int) (*external.Version, error) {
+	return s.client.FetchVersion(id)
+}
+
+func (s *VersionSyncer) FetchVersionGroup(id int) (*external.VersionGroup, error) {
+	return s.client.FetchVersionGroup(id)
+}
+
 func (s *VersionSyncer) SyncVersion(id int) (*external.Version, error) {
 	version, err := s.client.FetchVersion(id)
 	if err != nil {
 		return nil, err
 	}
-
-	err = s.repo.InsertVersion(version)
-	if err != nil {
+	if err := s.InsertVersion(version); err != nil {
 		return nil, err
 	}
-
 	return version, nil
 }
 
@@ -43,8 +56,7 @@ func (s *VersionSyncer) SyncVersionGroup(id int) (*external.VersionGroup, error)
 		return nil, err
 	}
 
-	err = s.repo.InsertVersionGroup(versionGroup)
-	if err != nil {
+	if err := s.repo.InsertVersionGroup(versionGroup); err != nil {
 		return nil, err
 	}
 

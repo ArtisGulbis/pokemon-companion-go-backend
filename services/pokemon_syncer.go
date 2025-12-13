@@ -34,11 +34,8 @@ func (s *PokemonSyncer) SyncSpecies(id int) (*external.Species, error) {
 		return nil, err
 	}
 
-	return pokedex, nil
-	return nil
+	return species, nil
 }
-
-// extractIDFromURL extracts the Pokemon ID from a URL like "https://pokeapi.co/api/v2/pokemon/25/"
 
 func (s *PokemonSyncer) SyncAll(limit int) error {
 	// Fetch all Pokemon from API
