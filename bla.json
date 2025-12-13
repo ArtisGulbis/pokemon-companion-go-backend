@@ -1,0 +1,21 @@
+{
+    "base_happiness": 70,
+    "capture_rate": 45,
+    "evolution_chain": {
+        "url": "https://pokeapi.co/api/v2/evolution-chain/79/"
+    },
+    "gender_rate": 1,
+    "generation": {
+        "name": "generation-ii",
+        "url": "https://pokeapi.co/api/v2/generation/2/"
+    },
+    "growth_rate": {
+        "name": "medium-slow",
+        "url": "https://pokeapi.co/api/v2/growth-rate/4/"
+    },
+    "id": 152,
+    "is_baby": false,
+    "is_legendary": false,
+    "is_mythical": false,
+    "name": "chikorita"
+}

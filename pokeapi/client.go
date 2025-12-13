@@ -20,6 +20,10 @@ func (c *Client) FetchPokemon(id int) (*models.Pokemon, error) {
 	return fetchByID[models.Pokemon](c, "pokemon", id)
 }
 
+func (c *Client) FetchSpecies(id int) (*models.Species, error) {
+	return fetchByID[models.Species](c, "pokemon-species", id)
+}
+
 func (c *Client) FetchVersion(id int) (*models.Version, error) {
 	return fetchByID[models.Version](c, "version", id)
 }

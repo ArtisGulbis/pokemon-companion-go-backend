@@ -6,8 +6,20 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	models "github.com/ArtisGulbis/pokemon-companion-go-backend/models/external"
+	"github.com/ArtisGulbis/pokemon-companion-go-backend/models/external"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
+
+func mockPokeAPIServer(t *testing.T, path string, statusCode int, response string) *httptest.Server {
+	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != path {
+			t.Errorf("Expected path %s, got %s", path, r.URL.Path)
+		}
+		w.WriteHeader(statusCode)
+		w.Write([]byte(response))
+	}))
+}
 
 func TestFetchPokemon(t *testing.T) {
 	tests := []struct {
@@ -94,7 +106,7 @@ func TestFetchAll(t *testing.T) {
 		name             string
 		mockResponse     string
 		mockStatus       int
-		expectedResponse []models.Response
+		expectedResponse []external.Response
 		path             string
 		expectedPath     string
 		expectErr        bool
@@ -114,7 +126,7 @@ func TestFetchAll(t *testing.T) {
 					}
 				]
 			}`,
-			expectedResponse: []models.Response{
+			expectedResponse: []external.Response{
 				{Name: "bulbasaur", Url: "https://pokeapi.co/api/v2/pokemon/1/"},
 				{Name: "ivysaur", Url: "https://pokeapi.co/api/v2/pokemon/2/"},
 			},
@@ -136,7 +148,7 @@ func TestFetchAll(t *testing.T) {
 			name:             "Empty Results",
 			mockStatus:       200,
 			mockResponse:     `{"results": []}`,
-			expectedResponse: []models.Response{},
+			expectedResponse: []external.Response{},
 			expectErr:        false,
 		},
 		{
@@ -185,4 +197,77 @@ func TestFetchAll(t *testing.T) {
 
 		})
 	}
+}
+
+func TestFetchSpecies(t *testing.T) {
+	tests := []struct {
+		name             string
+		mockResponse     string
+		mockStatus       int
+		expectedResponse *external.Species
+		path             string
+		expectedPath     string
+		expectErr        bool
+	}{
+		{
+			name: "Success",
+			expectedResponse: &external.Species{
+				ID:            152,
+				Name:          "chikorita",
+				IsBaby:        false,
+				IsLegendary:   false,
+				IsMythical:    false,
+				BaseHappiness: 70,
+				CaptureRate:   45,
+				EvolutionChain: external.URL{
+					URL: "https://pokeapi.co/api/v2/evolution-chain/79/",
+				},
+				GrowthRate: external.Response{
+					Name: "medium-slow",
+					Url:  "https://pokeapi.co/api/v2/growth-rate/4/",
+				},
+				GenderRate: 1,
+				Generation: external.Response{
+					Name: "generation-ii",
+					Url:  "https://pokeapi.co/api/v2/generation/2/",
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mockServer := mockPokeAPIServer(t, "/api/v2/pokemon-species/152", 200,
+				`{
+					"base_happiness": 70,
+					"capture_rate": 45,
+					"evolution_chain": {
+						"url": "https://pokeapi.co/api/v2/evolution-chain/79/"
+					},
+					"gender_rate": 1,
+					"generation": {
+						"name": "generation-ii",
+						"url": "https://pokeapi.co/api/v2/generation/2/"
+					},
+					"growth_rate": {
+						"name": "medium-slow",
+						"url": "https://pokeapi.co/api/v2/growth-rate/4/"
+					},
+					"id": 152,
+					"is_baby": false,
+					"is_legendary": false,
+					"is_mythical": false,
+					"name": "chikorita"
+				}`)
+			defer mockServer.Close()
+
+			client := NewClient(mockServer.URL)
+
+			pokemonSpecies, err := client.FetchSpecies(152)
+			require.NoError(t, err)
+			require.NotNil(t, pokemonSpecies)
+			assert.Equal(t, tt.expectedResponse, pokemonSpecies)
+		})
+	}
+
 }

@@ -1,5 +1,23 @@
 package external
 
+type Species struct {
+	ID             int      `json:"id"`
+	Name           string   `json:"name"`
+	EvolutionChain URL      `json:"evolution_chain"`
+	GenderRate     int      `json:"gender_rate"`
+	CaptureRate    int      `json:"capture_rate"`
+	BaseHappiness  int      `json:"base_happiness"`
+	IsBaby         bool     `json:"is_baby"`
+	IsLegendary    bool     `json:"is_legendary"`
+	IsMythical     bool     `json:"is_mythical"`
+	GrowthRate     Response `json:"growth_rate"`
+	Generation     Response `json:"generation"`
+}
+
+type URL struct {
+	URL string `json:"url"`
+}
+
 type Pokemon struct {
 	ID             int           `json:"id"`
 	Name           string        `json:"name"`
