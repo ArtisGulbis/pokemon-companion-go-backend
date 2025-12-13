@@ -23,6 +23,14 @@ func NewPokemonSyncer(client PokemonAPIClient, repo PokemonRepo, rateLimiter *ti
 	}
 }
 
+func (s *PokemonSyncer) FetchSpecies(id int) (*external.Species, error) {
+	return s.client.FetchSpecies(id)
+}
+
+func (s *PokemonSyncer) InsertSpecies(sp *external.Species) error {
+	return s.repo.InsertSpecies(sp)
+}
+
 func (s *PokemonSyncer) SyncSpecies(id int) (*external.Species, error) {
 	species, err := s.client.FetchSpecies(id)
 	if err != nil {

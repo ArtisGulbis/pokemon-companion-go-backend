@@ -36,6 +36,11 @@ func (m *MockPokedexRepo) InsertPokedex(p *external.Pokedex) error {
 	return args.Error(0)
 }
 
+func (m *MockPokedexRepo) InsertVersionGroupPokedex(vg *external.VersionGroup) error {
+	args := m.Called(vg)
+	return args.Error(0)
+}
+
 func (m *MockPokedexRepo) GetPokedexByID(id int) (*external.Pokedex, error) {
 	args := m.Called(id)
 	if args.Get(0) == nil {

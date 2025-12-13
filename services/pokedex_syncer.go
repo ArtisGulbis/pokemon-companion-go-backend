@@ -27,6 +27,10 @@ func (s *PokedexSyncer) InsertPokedex(pd *external.Pokedex) error {
 	return s.repo.InsertPokedex(pd)
 }
 
+func (s *PokedexSyncer) InsertVersionGroupPokedex(vg *external.VersionGroup) error {
+	return s.repo.InsertVersionGroupPokedex(vg)
+}
+
 func (s *PokedexSyncer) FetchPokedex(id int) (*external.Pokedex, error) {
 	return s.client.FetchPokedex(id)
 }

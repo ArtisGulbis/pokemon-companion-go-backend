@@ -44,9 +44,15 @@ type VersionGroup struct {
 }
 
 type Pokedex struct {
-	ID     int      `json:"id"`
-	Name   string   `json:"name"`
-	Region Response `json:"region"`
+	ID             int            `json:"id"`
+	Name           string         `json:"name"`
+	Region         Response       `json:"region"`
+	PokemonEntries []PokemonEntry `json:"pokemon_entries"`
+}
+
+type PokemonEntry struct {
+	EntryNumber    int      `json:"entry_number"`
+	PokemonSpecies Response `json:"pokemon_species"`
 }
 
 type PokedexPokemonEntry struct {

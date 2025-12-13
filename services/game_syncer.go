@@ -89,6 +89,22 @@ func (g *GameSyncer) SyncGame(id int) error {
 		if err := g.pokedexSyncer.InsertPokedex(pokedex); err != nil {
 			return err
 		}
+		if err := g.pokedexSyncer.InsertVersionGroupPokedex(versionGroup); err != nil {
+			return err
+		}
+		for _, pe := range pokedex.PokemonEntries {
+			speciesID, err := utils.ExtractIDFromURL(pe.PokemonSpecies.Url)
+			if err != nil {
+				return err
+			}
+			_, err = g.pokemonSyncer.SyncSpecies(speciesID)
+			if err != nil {
+				return err
+			}
+		}
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

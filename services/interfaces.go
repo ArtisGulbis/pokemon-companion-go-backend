@@ -36,5 +36,6 @@ type PokemonRepo interface {
 
 type PokedexRepo interface {
 	InsertPokedex(p *external.Pokedex) error
+	InsertVersionGroupPokedex(versionGroupPokedex *external.VersionGroup) error
 	GetPokedexByID(id int) (*external.Pokedex, error)
 }
