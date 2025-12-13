@@ -66,6 +66,41 @@ func TestInsertPokemon(t *testing.T) {
 	}
 }
 
+func TestInsertSpecies(t *testing.T) {
+	db, err := New(":memory:")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	repo := NewPokemonRepository(db)
+
+	species := &external.Species{
+		ID:            152,
+		Name:          "chikorita",
+		IsBaby:        false,
+		IsLegendary:   false,
+		IsMythical:    false,
+		BaseHappiness: 70,
+		CaptureRate:   45,
+		EvolutionChain: external.URL{
+			URL: "https://pokeapi.co/api/v2/evolution-chain/79/",
+		},
+		GrowthRate: external.Response{
+			Name: "medium-slow",
+			Url:  "https://pokeapi.co/api/v2/growth-rate/4/",
+		},
+		GenderRate: 1,
+		Generation: external.Response{
+			Name: "generation-ii",
+			Url:  "https://pokeapi.co/api/v2/generation/2/",
+		},
+	}
+
+	err = repo.InsertSpecies(species)
+	require.NoError(t, err)
+}
+
 func TestInsertVersionGroupPokedex(t *testing.T) {
 	db, err := New(":memory:")
 	if err != nil {

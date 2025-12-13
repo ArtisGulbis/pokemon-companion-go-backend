@@ -5,6 +5,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/ArtisGulbis/pokemon-companion-go-backend/models/external"
 	"github.com/ArtisGulbis/pokemon-companion-go-backend/utils"
 )
 
@@ -22,7 +23,18 @@ func NewPokemonSyncer(client PokemonAPIClient, repo PokemonRepo, rateLimiter *ti
 	}
 }
 
-func (s *PokemonSyncer) SyncSpecies(id int) error {
+func (s *PokemonSyncer) SyncSpecies(id int) (*external.Species, error) {
+	species, err := s.client.FetchSpecies(id)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.repo.InsertSpecies(species)
+	if err != nil {
+		return nil, err
+	}
+
+	return pokedex, nil
 	return nil
 }
 
