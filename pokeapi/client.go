@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	models "github.com/ArtisGulbis/pokemon-companion-go-backend/models/external"
+	"github.com/ArtisGulbis/pokemon-companion-go-backend/models/external"
 )
 
 type Client struct {
@@ -16,27 +16,27 @@ func NewClient(baseURL string) *Client {
 	return &Client{BaseURL: baseURL}
 }
 
-func (c *Client) FetchPokemon(id int) (*models.Pokemon, error) {
-	return fetchByID[models.Pokemon](c, "pokemon", id)
+func (c *Client) FetchPokemon(id int) (*external.Pokemon, error) {
+	return fetchByID[external.Pokemon](c, "pokemon", id)
 }
 
-func (c *Client) FetchSpecies(id int) (*models.Species, error) {
-	return fetchByID[models.Species](c, "pokemon-species", id)
+func (c *Client) FetchSpecies(id int) (*external.Species, error) {
+	return fetchByID[external.Species](c, "pokemon-species", id)
 }
 
-func (c *Client) FetchVersion(id int) (*models.Version, error) {
-	return fetchByID[models.Version](c, "version", id)
+func (c *Client) FetchVersion(id int) (*external.Version, error) {
+	return fetchByID[external.Version](c, "version", id)
 }
 
-func (c *Client) FetchVersionGroup(id int) (*models.VersionGroup, error) {
-	return fetchByID[models.VersionGroup](c, "version-group", id)
+func (c *Client) FetchVersionGroup(id int) (*external.VersionGroup, error) {
+	return fetchByID[external.VersionGroup](c, "version-group", id)
 }
 
-func (c *Client) FetchPokedex(id int) (*models.Pokedex, error) {
-	return fetchByID[models.Pokedex](c, "pokedex", id)
+func (c *Client) FetchPokedex(id int) (*external.Pokedex, error) {
+	return fetchByID[external.Pokedex](c, "pokedex", id)
 }
 
-func (c *Client) FetchAll(path string) ([]models.Response, error) {
+func (c *Client) FetchAll(path string) ([]external.Response, error) {
 	url := fmt.Sprintf("%s/api/v2/%s", c.BaseURL, path)
 	resp, err := http.Get(url)
 	if err != nil {
@@ -47,7 +47,7 @@ func (c *Client) FetchAll(path string) ([]models.Response, error) {
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("failed to fetch all pokemon: %s", resp.Status)
 	}
-	var paginatedResponse models.PaginatedResponse
+	var paginatedResponse external.PaginatedResponse
 
 	if err := json.NewDecoder(resp.Body).Decode(&paginatedResponse); err != nil {
 		return nil, fmt.Errorf("failed to decode all pokemon :%w", err)

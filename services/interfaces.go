@@ -8,6 +8,7 @@ import (
 type PokemonAPIClient interface {
 	FetchAll(path string) ([]external.Response, error)
 	FetchPokemon(id int) (*external.Pokemon, error)
+	FetchSpecies(id int) (*external.Species, error)
 }
 
 type VersionAPIClient interface {

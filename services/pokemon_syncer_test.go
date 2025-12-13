@@ -4,99 +4,93 @@ import (
 	"testing"
 	"time"
 
-	models "github.com/ArtisGulbis/pokemon-companion-go-backend/models/external"
+	"github.com/ArtisGulbis/pokemon-companion-go-backend/models/external"
+	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
 )
 
-// MockPokemonAPIClient is a mock implementation of PokemonAPIClient
 type MockPokemonAPIClient struct {
-	FetchAllFunc     func(path string) ([]models.Response, error)
-	FetchPokemonFunc func(id int) (*models.Pokemon, error)
+	mock.Mock
 }
 
-func (m *MockPokemonAPIClient) FetchAll(path string) ([]models.Response, error) {
-	if m.FetchAllFunc != nil {
-		return m.FetchAllFunc(path)
+func (m *MockPokemonAPIClient) FetchAll(path string) ([]external.Response, error) {
+	args := m.Called(path)
+	return args.Get(0).([]external.Response), args.Error(1)
+}
+
+func (m *MockPokemonAPIClient) FetchSpecies(id int) (*external.Species, error) {
+	args := m.Called(id)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
 	}
-	return nil, nil
+	return args.Get(0).(*external.Species), args.Error(1)
 }
 
-func (m *MockPokemonAPIClient) FetchPokemon(id int) (*models.Pokemon, error) {
-	if m.FetchPokemonFunc != nil {
-		return m.FetchPokemonFunc(id)
+func (m *MockPokemonAPIClient) FetchPokemon(id int) (*external.Pokemon, error) {
+	args := m.Called(id)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
 	}
-	return nil, nil
+	return args.Get(0).(*external.Pokemon), args.Error(1)
 }
 
-// MockPokemonRepo is a mock implementation of PokemonRepo
 type MockPokemonRepo struct {
-	InsertPokemonFunc  func(p *models.Pokemon) error
-	GetPokemonByIDFunc func(id int) (*models.Pokemon, error)
+	mock.Mock
 }
 
-func (m *MockPokemonRepo) InsertPokemon(p *models.Pokemon) error {
-	if m.InsertPokemonFunc != nil {
-		return m.InsertPokemonFunc(p)
-	}
-	return nil
+func (m *MockPokemonRepo) InsertPokemon(p *external.Pokemon) error {
+	args := m.Called(p)
+	return args.Error(0)
 }
 
-func (m *MockPokemonRepo) GetPokemonByID(id int) (*models.Pokemon, error) {
-	if m.GetPokemonByIDFunc != nil {
-		return m.GetPokemonByIDFunc(id)
+func (m *MockPokemonRepo) GetPokemonByID(id int) (*external.Pokemon, error) {
+	args := m.Called(id)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
 	}
-	return nil, nil
+	return args.Get(0).(*external.Pokemon), args.Error(1)
 }
 
 func TestSyncAllPokemon(t *testing.T) {
 	t.Run("Successfully syncs all Pokemon", func(t *testing.T) {
-		// Track what was called
-		var insertedPokemon []*models.Pokemon
+		mockClient := new(MockPokemonAPIClient)
+		mockClient.On("FetchAll", "pokemon?limit=2").Return(
+			[]external.Response{
+				{Name: "bulbasaur", Url: "https://pokeapi.co/api/v2/pokemon/1/"},
+				{Name: "ivysaur", Url: "https://pokeapi.co/api/v2/pokemon/2/"},
+			}, nil,
+		)
+		mockClient.On("FetchPokemon", 1).Return(
+			&external.Pokemon{
+				ID:     1,
+				Name:   "bulbasaur",
+				Height: 10,
+				Weight: 100,
+				Types:  []external.PokemonType{},
+			}, nil,
+		)
 
-		// Create mock client
-		mockClient := &MockPokemonAPIClient{
-			FetchAllFunc: func(path string) ([]models.Response, error) {
-				return []models.Response{
-					{Name: "bulbasaur", Url: "https://pokeapi.co/api/v2/pokemon/1/"},
-					{Name: "ivysaur", Url: "https://pokeapi.co/api/v2/pokemon/2/"},
-				}, nil
-			},
-			FetchPokemonFunc: func(id int) (*models.Pokemon, error) {
-				// Return mock Pokemon based on ID
-				return &models.Pokemon{
-					ID:     id,
-					Name:   "test-pokemon",
-					Height: 10,
-					Weight: 100,
-					Types:  []models.PokemonType{},
-				}, nil
-			},
-		}
+		mockClient.On("FetchPokemon", 2).Return(
+			&external.Pokemon{
+				ID:     2,
+				Name:   "ivysaur",
+				Height: 20,
+				Weight: 200,
+				Types:  []external.PokemonType{},
+			}, nil,
+		)
 
-		// Create mock repo
-		mockRepo := &MockPokemonRepo{
-			InsertPokemonFunc: func(p *models.Pokemon) error {
-				// Track what was inserted
-				insertedPokemon = append(insertedPokemon, p)
-				return nil
-			},
-		}
+		mockRepo := new(MockPokemonRepo)
+		mockRepo.On("InsertPokemon", mock.AnythingOfType("*external.Pokemon")).Return(nil).Twice()
 
 		rateLimiter := time.NewTicker(1 * time.Millisecond)
 
-		// Create syncer with mocks
 		syncer := NewPokemonSyncer(mockClient, mockRepo, rateLimiter)
 
-		// Act
 		err := syncer.SyncAll(2)
 
-		// Assert
-		if err != nil {
-			t.Fatalf("Expected no error, got: %v", err)
-		}
-
-		// Verify InsertPokemon was called twice
-		if len(insertedPokemon) != 2 {
-			t.Errorf("Expected 2 Pokemon to be inserted, got %d", len(insertedPokemon))
-		}
+		require.NoError(t, err)
+		mockRepo.AssertExpectations(t)
+		mockClient.AssertExpectations(t)
 	})
 }

@@ -22,6 +22,10 @@ func NewPokemonSyncer(client PokemonAPIClient, repo PokemonRepo, rateLimiter *ti
 	}
 }
 
+func (s *PokemonSyncer) SyncSpecies(id int) error {
+	return nil
+}
+
 // extractIDFromURL extracts the Pokemon ID from a URL like "https://pokeapi.co/api/v2/pokemon/25/"
 
 func (s *PokemonSyncer) SyncAll(limit int) error {
