@@ -43,12 +43,13 @@ func main() {
 		versionSyncer,
 		pokedexSyncer,
 		pokemonSyncer,
+		rateLimiter,
 	)
 
 	// 6. Run the sync
 	startTime := time.Now()
 
-	if err := gameSyncer.SyncGame(1); err != nil {
+	if err := gameSyncer.SyncAllGames(10); err != nil {
 		log.Fatal(err)
 	}
 

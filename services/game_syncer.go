@@ -1,23 +1,59 @@
 package services
 
-import "github.com/ArtisGulbis/pokemon-companion-go-backend/utils"
+import (
+	"fmt"
+	"log"
+	"time"
+
+	"github.com/ArtisGulbis/pokemon-companion-go-backend/utils"
+)
 
 type GameSyncer struct {
 	versionSyncer *VersionSyncer
 	pokedexSyncer *PokedexSyncer
 	pokemonSyncer *PokemonSyncer
+	rateLimiter   *time.Ticker
 }
 
 func NewGameSyncer(
 	versionSyncer *VersionSyncer,
 	pokedexSyncer *PokedexSyncer,
 	pokemonSyncer *PokemonSyncer,
+	rateLimiter *time.Ticker,
 ) *GameSyncer {
 	return &GameSyncer{
 		versionSyncer: versionSyncer,
 		pokedexSyncer: pokedexSyncer,
 		pokemonSyncer: pokemonSyncer,
+		rateLimiter:   rateLimiter,
 	}
+}
+func (g *GameSyncer) SyncAllGames(limit int) error {
+	allVersions, err := g.versionSyncer.client.FetchAll(fmt.Sprintf("version?limit=%d", limit))
+	if err != nil {
+		return fmt.Errorf("failed to fetch versions: %w", err)
+	}
+
+	fmt.Printf("Found %d versions to sync", len(allVersions))
+
+	for i, version := range allVersions {
+		if i > 0 {
+			<-g.rateLimiter.C
+		}
+
+		versionID, err := utils.ExtractIDFromURL(version.Url)
+		if err != nil {
+			return fmt.Errorf("failed to extract version ID from %s: %w", version.Url, err)
+		}
+		log.Printf("Syncing game %s (%d/%d)...", version.Name, i+1, len(allVersions))
+
+		if err := g.SyncGame(versionID); err != nil {
+			return fmt.Errorf("failed to sync game %d (%s): %w", versionID, version.Name, err)
+		}
+		log.Printf("✓ Completed %s", version.Name)
+	}
+
+	return nil
 }
 
 func (g *GameSyncer) SyncGame(id int) error {

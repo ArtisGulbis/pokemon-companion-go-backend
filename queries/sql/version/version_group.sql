@@ -1,2 +1,2 @@
-INSERT INTO version_groups (id, name, generation_name) 
+INSERT OR IGNORE INTO version_groups (id, name, generation_name)
 VALUES (?, ?, ?)

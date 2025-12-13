@@ -1,2 +1,2 @@
-INSERT INTO pokedexes (id, name, region_name)
+INSERT OR IGNORE INTO pokedexes (id, name, region_name)
 VALUES (?, ?, ?)
