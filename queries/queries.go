@@ -15,6 +15,9 @@ var InsertVersionGroup string
 //go:embed sql/pokedex/version_group_pokedex.sql
 var InsertVersionGroupPokedex string
 
+//go:embed sql/pokedex/pokedex_entry.sql
+var InsertPokedexEntry string
+
 //go:embed sql/pokemon/pokemon.sql
 var InsertPokemon string
 

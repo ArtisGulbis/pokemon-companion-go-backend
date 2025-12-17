@@ -60,6 +60,20 @@ func (r *PokedexRepository) InsertVersionGroupPokedex(versionGroupPokedex *exter
 	return nil
 }
 
+func (r *PokedexRepository) InsertPokedexEntry(pokedexEntry *external.PokedexEntry) error {
+	stmt, err := r.db.Prepare(queries.InsertPokedexEntry)
+	if err != nil {
+		return fmt.Errorf("failed to prepare statement: %w", err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(pokedexEntry.PokedexID, pokedexEntry.SpeciesID, pokedexEntry.EntryNumber)
+	if err != nil {
+		return fmt.Errorf("failed to insert pokedex entry: %w", err)
+	}
+	return nil
+}
+
 func (r *PokedexRepository) InsertPokedexPokemonEntry(pokemonEntry []external.PokedexPokemonEntry, pokedexID int) error {
 	stmt, err := r.db.Prepare(queries.InsertPokedexPokemonEntry)
 	if err != nil {

@@ -28,7 +28,7 @@ CREATE TABLE version_groups (
     generation_name TEXT NOT NULL        -- e.g., "generation-v"
 );
 
--- Populated from: GET /version?limit=100  
+-- Populated from: GET /version?limit=100
 -- Individual games - you show these to users, but use version_group internally
 CREATE TABLE versions (
     id INTEGER PRIMARY KEY,
@@ -54,7 +54,7 @@ CREATE TABLE version_group_pokedexes (
 );
 
 -- ============================================================================
--- POKEMON DATA TABLES  
+-- POKEMON DATA TABLES
 -- Core Pokemon information from pokemon-species and pokemon endpoints
 -- ============================================================================
 
@@ -92,7 +92,7 @@ CREATE TABLE pokemon (
     name TEXT UNIQUE NOT NULL,           -- e.g., "pikachu", "pikachu-gmax", "meowth-alola"
     is_default BOOLEAN NOT NULL,         -- TRUE for the "main" form of each species
     height INTEGER,                      -- In decimeters
-    weight INTEGER,                      -- In hectograms  
+    weight INTEGER,                      -- In hectograms
     base_experience INTEGER,
     -- Stats stored directly for easy querying
     hp INTEGER,

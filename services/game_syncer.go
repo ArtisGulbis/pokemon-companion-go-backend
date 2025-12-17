@@ -5,6 +5,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/ArtisGulbis/pokemon-companion-go-backend/models/external"
 	"github.com/ArtisGulbis/pokemon-companion-go-backend/utils"
 )
 
@@ -98,6 +99,14 @@ func (g *GameSyncer) SyncGame(id int) error {
 				return err
 			}
 			_, err = g.pokemonSyncer.SyncSpecies(speciesID)
+			if err != nil {
+				return err
+			}
+			err = g.pokedexSyncer.InsertPokedexEntry(&external.PokedexEntry{
+				PokedexID:   pokedexId,
+				SpeciesID:   speciesID,
+				EntryNumber: pe.EntryNumber,
+			})
 			if err != nil {
 				return err
 			}

@@ -23,10 +23,30 @@ type Pokemon struct {
 	Name           string        `json:"name"`
 	Height         int           `json:"height"`
 	Weight         int           `json:"weight"`
+	IsDefault      bool          `json:"is_default"`
 	BaseExperience int           `json:"base_experience"`
 	Types          []PokemonType `json:"types"`
 	SpeciesID      int           `json:"species_id"`
-	IsDefault      bool          `json:"is_default"`
+	Stats          []Stat        `json:"stats"`
+	Sprites        Sprite        `json:"sprites"`
+}
+
+type Sprite struct {
+	Other Other `json:"other"`
+}
+
+type Other struct {
+	OfficialArtwork OfficialArtwork `json:"official-artwork"`
+}
+
+type OfficialArtwork struct {
+	FrontDefault string `json:"front_default"`
+	FrontShiny   string `json:"front_shiny"`
+}
+
+type Stat struct {
+	BaseStat int      `json:"base_stat"`
+	Stat     Response `json:"stat"`
 }
 
 type Version struct {
@@ -48,6 +68,12 @@ type Pokedex struct {
 	Name           string         `json:"name"`
 	Region         Response       `json:"region"`
 	PokemonEntries []PokemonEntry `json:"pokemon_entries"`
+}
+
+type PokedexEntry struct {
+	PokedexID   int
+	SpeciesID   int
+	EntryNumber int
 }
 
 type PokemonEntry struct {

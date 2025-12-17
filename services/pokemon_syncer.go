@@ -31,6 +31,10 @@ func (s *PokemonSyncer) InsertSpecies(sp *external.Species) error {
 	return s.repo.InsertSpecies(sp)
 }
 
+func (s *PokemonSyncer) InsertPokemon(p *external.Pokemon) error {
+	return s.repo.InsertPokemon(p)
+}
+
 func (s *PokemonSyncer) SyncSpecies(id int) (*external.Species, error) {
 	species, err := s.client.FetchSpecies(id)
 	if err != nil {

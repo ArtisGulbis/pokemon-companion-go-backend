@@ -28,7 +28,7 @@ type VersionRepo interface {
 	GetVersionByID(id int) (*dto.Version, error)
 }
 
-type PokemonRepo interface {
+type InsertSpeciesPokemonRepo interface {
 	InsertPokemon(p *external.Pokemon) error
 	InsertSpecies(p *external.Species) error
 	GetPokemonByID(id int) (*external.Pokemon, error)
@@ -36,6 +36,7 @@ type PokemonRepo interface {
 
 type PokedexRepo interface {
 	InsertPokedex(p *external.Pokedex) error
+	InsertPokedexEntry(p *external.PokedexEntry) error
 	InsertVersionGroupPokedex(versionGroupPokedex *external.VersionGroup) error
 	GetPokedexByID(id int) (*external.Pokedex, error)
 }

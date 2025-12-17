@@ -1,12 +1,19 @@
 SELECT
     p.id,
+    p.species_id,
     p.name,
+    p.is_default,
     p.height,
     p.weight,
     p.base_experience,
-    pt.type_name,
-    pt.slot AS type_slot
+    p.hp,
+    p.attack,
+    p.defense,
+    p.special_attack,
+    p.special_defense,
+    p.speed,
+    p.sprite_front_default,
+    p.sprite_front_shiny,
+    p.sprite_artwork
 FROM pokemon p
-LEFT JOIN pokemon_types pt ON p.id = pt.pokemon_id
-WHERE p.id = ?
-ORDER BY pt.slot;
+WHERE p.id = ?;

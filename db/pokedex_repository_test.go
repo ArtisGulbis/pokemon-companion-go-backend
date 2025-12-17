@@ -3,16 +3,17 @@ package db
 import (
 	"testing"
 
-	models "github.com/ArtisGulbis/pokemon-companion-go-backend/models/external"
+	"github.com/ArtisGulbis/pokemon-companion-go-backend/models/external"
+	"github.com/stretchr/testify/require"
 )
 
 func TestInsertPokedex(t *testing.T) {
 	db := setupTest(t)
 
-	pokedex := &models.Pokedex{
+	pokedex := &external.Pokedex{
 		ID:   1,
 		Name: "Unova",
-		Region: models.Response{
+		Region: external.Response{
 			Name: "Unova",
 			Url:  "some url",
 		},
@@ -32,4 +33,31 @@ func TestInsertPokedex(t *testing.T) {
 	if retrieved.Name != pokedex.Name {
 		t.Errorf("Expected %s, go %s", pokedex.Name, retrieved.Name)
 	}
+}
+
+func TestInsertPokedexEntries(t *testing.T) {
+	db := setupTest(t)
+
+	pokedexEntry := &external.PokedexEntry{
+		PokedexID:   1,
+		SpeciesID:   1,
+		EntryNumber: 1,
+	}
+
+	repo := NewPokedexRepository(db)
+
+	_, err := db.Exec(`INSERT INTO species (id, name) VALUES (1, 'pikachu')`)
+	if err != nil {
+		t.Fatalf("Failed to insert: %v", err)
+	}
+	_, err = db.Exec(`INSERT INTO pokedexes (id, name, region_name) VALUES (1, 'red', 'kanto')`)
+	if err != nil {
+		t.Fatalf("Failed to insert: %v", err)
+	}
+
+	err = repo.InsertPokedexEntry(pokedexEntry)
+	if err != nil {
+		t.Fatalf("Failed to insert: %v", err)
+	}
+	require.NoError(t, err)
 }

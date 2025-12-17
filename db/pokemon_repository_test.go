@@ -3,20 +3,21 @@ package db
 import (
 	"testing"
 
+	"github.com/ArtisGulbis/pokemon-companion-go-backend/models/dto"
 	"github.com/ArtisGulbis/pokemon-companion-go-backend/models/external"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestInsertPokemon(t *testing.T) {
-	// Create in-memory SQLite database for testing
-	db, err := New(":memory:") // Special SQLite in-memory mode
+	db, err := New(":memory:")
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer db.Close()
 
 	// Insert the species first (required by foreign key)
-	_, err = db.Exec(`INSERT INTO species (id, name, is_legendary, is_mythical) VALUES (25, 'pikachu', FALSE, FALSE)`)
+	_, err = db.Exec(`INSERT INTO species (id, name) VALUES (1, 'pikachu')`)
 	if err != nil {
 		t.Fatalf("Failed to insert species: %v", err)
 	}
@@ -25,13 +26,65 @@ func TestInsertPokemon(t *testing.T) {
 
 	// Test data
 	pokemon := &external.Pokemon{
-		ID:             25,
+		ID:             1,
 		Name:           "pikachu",
-		Height:         4,
-		Weight:         60,
-		BaseExperience: 25,
-		SpeciesID:      25,
+		Height:         1,
+		Weight:         1,
 		IsDefault:      true,
+		BaseExperience: 1,
+		SpeciesID:      1,
+		Stats: []external.Stat{
+			{
+				BaseStat: 1,
+				Stat: external.Response{
+					Name: "hp",
+					Url:  "",
+				},
+			},
+			{
+				BaseStat: 1,
+				Stat: external.Response{
+					Name: "attack",
+					Url:  "",
+				},
+			},
+			{
+				BaseStat: 1,
+				Stat: external.Response{
+					Name: "defense",
+					Url:  "",
+				},
+			},
+			{
+				BaseStat: 1,
+				Stat: external.Response{
+					Name: "special_attack",
+					Url:  "",
+				},
+			},
+			{
+				BaseStat: 1,
+				Stat: external.Response{
+					Name: "special_defense",
+					Url:  "",
+				},
+			},
+			{
+				BaseStat: 1,
+				Stat: external.Response{
+					Name: "speed",
+					Url:  "",
+				},
+			},
+		},
+		Sprites: external.Sprite{
+			Other: external.Other{
+				OfficialArtwork: external.OfficialArtwork{
+					FrontDefault: "",
+					FrontShiny:   "",
+				},
+			},
+		},
 	}
 
 	// Act
@@ -43,27 +96,30 @@ func TestInsertPokemon(t *testing.T) {
 	}
 
 	// Verify it was inserted
-	retrieved, err := repo.GetPokemonByID(25)
-	if err != nil {
-		t.Fatalf("Failed to retrieve: %v", err)
-	}
+	actual, err := repo.GetPokemonByID(1)
 
-	if retrieved.Name != "pikachu" {
-		t.Errorf("Expected pikachu, got %s", retrieved.Name)
-	}
+	require.NoError(t, err)
+	require.NotNil(t, actual)
 
-	if retrieved.BaseExperience != pokemon.BaseExperience {
-		t.Errorf("Expected base_experience %d, got %d", pokemon.BaseExperience, retrieved.BaseExperience)
+	expected := &dto.Pokemon{
+		ID:                 1,
+		SpeciesID:          1,
+		Name:               "pikachu",
+		IsDefault:          true,
+		Height:             1,
+		Weight:             1,
+		BaseExperience:     1,
+		HP:                 1,
+		Attack:             1,
+		Defense:            1,
+		SpecialAttack:      1,
+		SpecialDefense:     1,
+		Speed:              1,
+		SpriteFrontDefault: "",
+		SpriteFrontShiny:   "",
+		SpriteArtwork:      "",
 	}
-	if retrieved.ID != pokemon.ID {
-		t.Errorf("Expected id %d, got %d", pokemon.ID, retrieved.ID)
-	}
-	if retrieved.Weight != pokemon.Weight {
-		t.Errorf("Expected weight %d, got %d", pokemon.Weight, retrieved.Weight)
-	}
-	if retrieved.Height != pokemon.Height {
-		t.Errorf("Expected height %d, got %d", pokemon.Height, retrieved.Height)
-	}
+	assert.Equal(t, expected, actual)
 }
 
 func TestInsertSpecies(t *testing.T) {

@@ -23,6 +23,10 @@ func New(dbPath string) (*Database, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to open database: %w", err)
 	}
+	// CRITICAL: For in-memory databases, all operations must use the same connection
+	if dbPath == ":memory:" {
+		sqlDB.SetMaxOpenConns(1)
+	}
 
 	// Enable foreign keys (important for SQLite!)
 	if _, err := sqlDB.Exec("PRAGMA foreign_keys = ON"); err != nil {
