@@ -26,9 +26,10 @@ type Pokemon struct {
 	IsDefault      bool          `json:"is_default"`
 	BaseExperience int           `json:"base_experience"`
 	Types          []PokemonType `json:"types"`
-	SpeciesID      int           `json:"species_id"`
 	Stats          []Stat        `json:"stats"`
 	Sprites        Sprite        `json:"sprites"`
+	Species        Response      `json:"species"`
+	SpeciesID      int
 }
 
 type Sprite struct {
@@ -92,8 +93,8 @@ type PokedexDescriptions struct {
 }
 
 type PokemonType struct {
-	Name string `json:"name"`
-	Slot int    `json:"slot"`
+	Type Response `json:"type"`
+	Slot int      `json:"slot"`
 }
 
 type Response struct {

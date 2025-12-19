@@ -33,6 +33,9 @@ var GetPokemonByID string
 //go:embed sql/pokedex/pokedex.sql
 var InsertPokedex string
 
+//go:embed sql/pokemon/types.sql
+var InsertType string
+
 //go:embed sql/pokedex/pokedex_description.sql
 var InsertPokemonDescriptions string
 

@@ -35,6 +35,30 @@ func (s *PokemonSyncer) InsertPokemon(p *external.Pokemon) error {
 	return s.repo.InsertPokemon(p)
 }
 
+func (s *PokemonSyncer) InsertType(t *external.PokemonType, pokemonID int) error {
+	return s.repo.InsertType(t, pokemonID)
+}
+
+func (s *PokemonSyncer) SyncPokemon(id int) (*external.Pokemon, error) {
+	pokemon, err := s.client.FetchPokemon(id)
+	if err != nil {
+		return nil, err
+	}
+
+	speciesID, err := utils.ExtractIDFromURL(pokemon.Species.Url)
+	if err != nil {
+		return nil, err
+	}
+	pokemon.SpeciesID = speciesID
+
+	err = s.repo.InsertPokemon(pokemon)
+	if err != nil {
+		return nil, err
+	}
+
+	return pokemon, nil
+}
+
 func (s *PokemonSyncer) SyncSpecies(id int) (*external.Species, error) {
 	species, err := s.client.FetchSpecies(id)
 	if err != nil {

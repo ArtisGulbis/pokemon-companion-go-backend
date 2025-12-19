@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/ArtisGulbis/pokemon-companion-go-backend/models/dto"
 	"github.com/ArtisGulbis/pokemon-companion-go-backend/models/external"
 	"github.com/ArtisGulbis/pokemon-companion-go-backend/queries"
 	"github.com/ArtisGulbis/pokemon-companion-go-backend/utils"
@@ -175,21 +176,21 @@ func (r *PokedexRepository) GetPokedexEntriesByPokedexID(pokedexID int) ([]*exte
 	return pokedexPokemonEntries, nil
 }
 
-func (r *PokedexRepository) GetPokedexByID(id int) (*external.Pokedex, error) {
+func (r *PokedexRepository) GetPokedexByID(id int) (*dto.Pokedex, error) {
 	rows, err := r.db.Query(queries.GetPokedexByID, id)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query: %w", err)
 	}
 	defer rows.Close()
 
-	var pokedex *external.Pokedex
+	var pokedex *dto.Pokedex
 
 	for rows.Next() {
-		pokedex = &external.Pokedex{}
+		pokedex = &dto.Pokedex{}
 		err = rows.Scan(
 			&pokedex.ID,
 			&pokedex.Name,
-			&pokedex.Region.Name,
+			&pokedex.RegionName,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan row: %w", err)

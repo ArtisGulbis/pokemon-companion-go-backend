@@ -28,15 +28,16 @@ type VersionRepo interface {
 	GetVersionByID(id int) (*dto.Version, error)
 }
 
-type InsertSpeciesPokemonRepo interface {
+type PokemonRepo interface {
 	InsertPokemon(p *external.Pokemon) error
+	InsertType(p *external.PokemonType, pokemonId int) error
 	InsertSpecies(p *external.Species) error
-	GetPokemonByID(id int) (*external.Pokemon, error)
+	GetPokemonByID(id int) (*dto.Pokemon, error)
 }
 
 type PokedexRepo interface {
 	InsertPokedex(p *external.Pokedex) error
 	InsertPokedexEntry(p *external.PokedexEntry) error
 	InsertVersionGroupPokedex(versionGroupPokedex *external.VersionGroup) error
-	GetPokedexByID(id int) (*external.Pokedex, error)
+	GetPokedexByID(id int) (*dto.Pokedex, error)
 }

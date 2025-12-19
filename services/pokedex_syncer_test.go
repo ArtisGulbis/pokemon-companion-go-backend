@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ArtisGulbis/pokemon-companion-go-backend/models/dto"
 	"github.com/ArtisGulbis/pokemon-companion-go-backend/models/external"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -36,17 +37,22 @@ func (m *MockPokedexRepo) InsertPokedex(p *external.Pokedex) error {
 	return args.Error(0)
 }
 
+func (m *MockPokedexRepo) InsertPokedexEntry(p *external.PokedexEntry) error {
+	args := m.Called(p)
+	return args.Error(0)
+}
+
 func (m *MockPokedexRepo) InsertVersionGroupPokedex(vg *external.VersionGroup) error {
 	args := m.Called(vg)
 	return args.Error(0)
 }
 
-func (m *MockPokedexRepo) GetPokedexByID(id int) (*external.Pokedex, error) {
+func (m *MockPokedexRepo) GetPokedexByID(id int) (*dto.Pokedex, error) {
 	args := m.Called(id)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
-	return args.Get(0).(*external.Pokedex), args.Error(1)
+	return args.Get(0).(*dto.Pokedex), args.Error(1)
 }
 
 func TestSyncAllPokedexes(t *testing.T) {

@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ArtisGulbis/pokemon-companion-go-backend/models/dto"
 	"github.com/ArtisGulbis/pokemon-companion-go-backend/models/external"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -43,17 +44,22 @@ func (m *MockPokemonRepo) InsertPokemon(p *external.Pokemon) error {
 	return args.Error(0)
 }
 
+func (m *MockPokemonRepo) InsertType(p *external.PokemonType, pokemonId int) error {
+	args := m.Called(p)
+	return args.Error(0)
+}
+
 func (m *MockPokemonRepo) InsertSpecies(p *external.Species) error {
 	args := m.Called(p)
 	return args.Error(0)
 }
 
-func (m *MockPokemonRepo) GetPokemonByID(id int) (*external.Pokemon, error) {
+func (m *MockPokemonRepo) GetPokemonByID(id int) (*dto.Pokemon, error) {
 	args := m.Called(id)
 	if args.Get(0) == nil {
 		return nil, args.Error(1)
 	}
-	return args.Get(0).(*external.Pokemon), args.Error(1)
+	return args.Get(0).(*dto.Pokemon), args.Error(1)
 }
 
 func TestSyncAllPokemon(t *testing.T) {

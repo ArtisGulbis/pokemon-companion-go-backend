@@ -58,14 +58,14 @@ func TestInsertPokemon(t *testing.T) {
 			{
 				BaseStat: 1,
 				Stat: external.Response{
-					Name: "special_attack",
+					Name: "special-attack",
 					Url:  "",
 				},
 			},
 			{
 				BaseStat: 1,
 				Stat: external.Response{
-					Name: "special_defense",
+					Name: "special-defense",
 					Url:  "",
 				},
 			},
@@ -193,5 +193,147 @@ func TestInsertVersionGroupPokedex(t *testing.T) {
 	}
 
 	err = repo.InsertVersionGroupPokedex(versionGroupPokedex)
+	require.NoError(t, err)
+}
+
+func TestGetStat(t *testing.T) {
+	tests := []struct {
+		name     string
+		stats    []external.Stat
+		key      string
+		expected int
+	}{
+		{
+			name: "finds stat at index 0 (hp)",
+			stats: []external.Stat{
+				{
+					BaseStat: 45,
+					Stat: external.Response{
+						Name: "hp",
+						Url:  "https://pokeapi.co/api/v2/stat/1/",
+					},
+				},
+				{
+					BaseStat: 49,
+					Stat: external.Response{
+						Name: "attack",
+						Url:  "https://pokeapi.co/api/v2/stat/2/",
+					},
+				},
+			},
+			key:      "hp",
+			expected: 45,
+		},
+		{
+			name: "finds stat in middle of array (attack)",
+			stats: []external.Stat{
+				{
+					BaseStat: 45,
+					Stat: external.Response{
+						Name: "hp",
+						Url:  "https://pokeapi.co/api/v2/stat/1/",
+					},
+				},
+				{
+					BaseStat: 49,
+					Stat: external.Response{
+						Name: "attack",
+						Url:  "https://pokeapi.co/api/v2/stat/2/",
+					},
+				},
+				{
+					BaseStat: 49,
+					Stat: external.Response{
+						Name: "defense",
+						Url:  "https://pokeapi.co/api/v2/stat/3/",
+					},
+				},
+			},
+			key:      "attack",
+			expected: 49,
+		},
+		{
+			name: "finds special-attack with hyphen",
+			stats: []external.Stat{
+				{
+					BaseStat: 65,
+					Stat: external.Response{
+						Name: "hp",
+						Url:  "https://pokeapi.co/api/v2/stat/1/",
+					},
+				},
+				{
+					BaseStat: 55,
+					Stat: external.Response{
+						Name: "special-attack",
+						Url:  "https://pokeapi.co/api/v2/stat/4/",
+					},
+				},
+			},
+			key:      "special-attack",
+			expected: 55,
+		},
+		{
+			name: "returns 0 when stat not found",
+			stats: []external.Stat{
+				{
+					BaseStat: 45,
+					Stat: external.Response{
+						Name: "hp",
+						Url:  "https://pokeapi.co/api/v2/stat/1/",
+					},
+				},
+			},
+			key:      "attack",
+			expected: 0,
+		},
+		{
+			name:     "returns 0 for empty stats array",
+			stats:    []external.Stat{},
+			key:      "hp",
+			expected: 0,
+		},
+		{
+			name:     "returns 0 for nil stats array",
+			stats:    nil,
+			key:      "hp",
+			expected: 0,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			actual := getStat(tt.stats, tt.key)
+			assert.Equal(t, tt.expected, actual)
+		})
+	}
+}
+
+func TestInsertType(t *testing.T) {
+	db, err := New(":memory:")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	repo := NewPokemonRepository(db)
+
+	pokemonType := &external.PokemonType{
+		Type: external.Response{
+			Name: "grass",
+			Url:  "https://pokeapi.co/api/v2/type/12/",
+		},
+		Slot: 2,
+	}
+
+	_, err = db.Exec(`INSERT INTO species (id, name) VALUES (1, "Pikachu")`)
+	if err != nil {
+		t.Fatalf("Failed to insert: %v", err)
+	}
+	_, err = db.Exec(`INSERT INTO pokemon (id, species_id, name, is_default) VALUES (1, 1, "pikachu", FALSE)`)
+	if err != nil {
+		t.Fatalf("Failed to insert: %v", err)
+	}
+	err = repo.InsertType(pokemonType, 1)
 	require.NoError(t, err)
 }

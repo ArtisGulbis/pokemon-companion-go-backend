@@ -54,7 +54,7 @@ func (r *PokemonRepository) InsertSpecies(s *external.Species) error {
 }
 
 func (r *PokemonRepository) InsertPokemon(p *external.Pokemon) error {
-	result, err := r.db.Exec(queries.InsertPokemon,
+	_, err := r.db.Exec(queries.InsertPokemon,
 		p.ID,
 		p.SpeciesID,
 		p.Name,
@@ -65,8 +65,8 @@ func (r *PokemonRepository) InsertPokemon(p *external.Pokemon) error {
 		getStat(p.Stats, "hp"),
 		getStat(p.Stats, "attack"),
 		getStat(p.Stats, "defense"),
-		getStat(p.Stats, "special_attack"),
-		getStat(p.Stats, "special_defense"),
+		getStat(p.Stats, "special-attack"),
+		getStat(p.Stats, "special-defense"),
 		getStat(p.Stats, "speed"),
 		p.Sprites.Other.OfficialArtwork.FrontDefault,
 		p.Sprites.Other.OfficialArtwork.FrontShiny,
@@ -76,8 +76,24 @@ func (r *PokemonRepository) InsertPokemon(p *external.Pokemon) error {
 		return fmt.Errorf("failed to exec: %w", err)
 	}
 
-	rows, _ := result.RowsAffected()
-	fmt.Printf("DEBUG: Inserted %d rows for pokemon ID %d\n", rows, p.ID)
+	return nil
+}
+
+func (r *PokemonRepository) InsertType(t *external.PokemonType, pokemonId int) error {
+	stmt, err := r.db.Prepare(queries.InsertType)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(
+		pokemonId,
+		t.Type.Name,
+		t.Slot,
+	)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

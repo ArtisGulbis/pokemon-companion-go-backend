@@ -49,7 +49,7 @@ func main() {
 	// 6. Run the sync
 	startTime := time.Now()
 
-	if err := gameSyncer.SyncAllGames(10); err != nil {
+	if err := gameSyncer.SyncAllGames(1); err != nil {
 		log.Fatal(err)
 	}
 
