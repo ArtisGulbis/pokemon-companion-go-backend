@@ -39,6 +39,10 @@ func (s *PokemonSyncer) InsertType(t *external.PokemonType, pokemonID int) error
 	return s.repo.InsertType(t, pokemonID)
 }
 
+func (s *PokemonSyncer) InsertAbility(a *external.Ability, pokemonID int) error {
+	return s.repo.InsertAbility(a, pokemonID)
+}
+
 func (s *PokemonSyncer) SyncPokemon(id int) (*external.Pokemon, error) {
 	pokemon, err := s.client.FetchPokemon(id)
 	if err != nil {

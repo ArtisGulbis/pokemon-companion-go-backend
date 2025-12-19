@@ -102,22 +102,26 @@ func (g *GameSyncer) SyncGame(id int) error {
 			if err != nil {
 				return err
 			}
-			// _, err = g.pokemonSyncer.SyncPokemon(speciesID)
-			pokemon, err := g.pokemonSyncer.client.FetchPokemon(speciesID)
-			pokemon.SpeciesID = speciesID
+
+			pokemon, err := g.pokemonSyncer.SyncPokemon(speciesID)
 			if err != nil {
 				return err
 			}
-			err = g.pokemonSyncer.InsertPokemon(pokemon)
-			if err != nil {
-				return err
-			}
+
 			for _, t := range pokemon.Types {
 				err = g.pokemonSyncer.InsertType(&t, pokemon.ID)
 				if err != nil {
 					return err
 				}
 			}
+
+			for _, a := range pokemon.Abilities {
+				err = g.pokemonSyncer.InsertAbility(&a, pokemon.ID)
+				if err != nil {
+					return err
+				}
+			}
+
 			err = g.pokedexSyncer.InsertPokedexEntry(&external.PokedexEntry{
 				PokedexID:   pokedexId,
 				SpeciesID:   speciesID,

@@ -9,6 +9,9 @@ import (
 //go:embed sql/version/version.sql
 var InsertVersion string
 
+//go:embed sql/pokemon/ability.sql
+var InsertAbility string
+
 //go:embed sql/version/version_group.sql
 var InsertVersionGroup string
 

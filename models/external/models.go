@@ -22,6 +22,7 @@ type Pokemon struct {
 	ID             int           `json:"id"`
 	Name           string        `json:"name"`
 	Height         int           `json:"height"`
+	Abilities      []Ability     `json:"abilities"`
 	Weight         int           `json:"weight"`
 	IsDefault      bool          `json:"is_default"`
 	BaseExperience int           `json:"base_experience"`
@@ -30,6 +31,12 @@ type Pokemon struct {
 	Sprites        Sprite        `json:"sprites"`
 	Species        Response      `json:"species"`
 	SpeciesID      int
+}
+
+type Ability struct {
+	IsHidden bool     `json:"is_hidden"`
+	Ability  Response `json:"ability"`
+	Slot     int      `json:"slot"`
 }
 
 type Sprite struct {

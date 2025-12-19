@@ -337,3 +337,51 @@ func TestInsertType(t *testing.T) {
 	err = repo.InsertType(pokemonType, 1)
 	require.NoError(t, err)
 }
+
+func TestInsertAbility(t *testing.T) {
+	db, err := New(":memory:")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	repo := NewPokemonRepository(db)
+
+	ability := &external.Ability{
+		IsHidden: false,
+		Slot:     1,
+		Ability: external.Response{
+			Name: "bite",
+			Url:  "https://pokeapi.co/api/v2/ability/39/",
+		},
+	}
+
+	_, err = db.Exec(`INSERT INTO species (id, name) VALUES (1, "Pikachu")`)
+	if err != nil {
+		t.Fatalf("Failed to insert: %v", err)
+	}
+	_, err = db.Exec(`INSERT INTO pokemon (id, species_id, name, is_default) VALUES (1, 1, "pikachu", FALSE)`)
+	if err != nil {
+		t.Fatalf("Failed to insert: %v", err)
+	}
+	err = repo.InsertAbility(ability, 1)
+	query := `SELECT * FROM pokemon_abilities WHERE pokemon_id = 1`
+	var got dto.Ability
+	err = db.QueryRow(query, 1).Scan(
+		&got.PokemonId,
+		&got.AbilityName,
+		&got.IsHidden,
+		&got.Slot,
+	)
+	require.NoError(t, err)
+
+	expected := dto.Ability{
+		PokemonId:   1,
+		AbilityName: "bite",
+		IsHidden:    false,
+		Slot:        1,
+	}
+
+	assert.NotNil(t, got)
+	assert.Equal(t, expected, got)
+}

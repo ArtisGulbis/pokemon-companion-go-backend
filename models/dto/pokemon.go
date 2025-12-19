@@ -18,3 +18,10 @@ type Pokemon struct {
 	SpriteFrontShiny   string
 	SpriteArtwork      string
 }
+
+type Ability struct {
+	PokemonId   int
+	AbilityName string
+	IsHidden    bool
+	Slot        int
+}

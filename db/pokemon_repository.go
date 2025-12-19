@@ -79,6 +79,26 @@ func (r *PokemonRepository) InsertPokemon(p *external.Pokemon) error {
 	return nil
 }
 
+func (r *PokemonRepository) InsertAbility(a *external.Ability, pokemonId int) error {
+	stmt, err := r.db.Prepare(queries.InsertAbility)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(
+		pokemonId,
+		a.Ability.Name,
+		a.IsHidden,
+		a.Slot,
+	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (r *PokemonRepository) InsertType(t *external.PokemonType, pokemonId int) error {
 	stmt, err := r.db.Prepare(queries.InsertType)
 	if err != nil {
