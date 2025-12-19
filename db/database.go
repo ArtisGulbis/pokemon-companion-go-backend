@@ -9,7 +9,7 @@ import (
 	_ "github.com/glebarez/go-sqlite"
 )
 
-//go:embed schema2.sql
+//go:embed schema.sql
 var schemaSQL string
 
 type Database struct {
@@ -17,6 +17,7 @@ type Database struct {
 }
 
 func New(dbPath string) (*Database, error) {
+	os.Remove("pokemon.db")
 	dbExists := fileExists(dbPath)
 
 	sqlDB, err := sql.Open("sqlite", dbPath)

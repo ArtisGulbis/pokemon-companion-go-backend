@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"log"
-	"os"
 	"time"
 
 	"github.com/ArtisGulbis/pokemon-companion-go-backend/db"
@@ -16,7 +15,6 @@ func main() {
 	flag.Parse()
 
 	// 1. Setup database
-	os.Remove("pokemon.db")
 	database, err := db.New("pokemon.db")
 	if err != nil {
 		log.Fatal(err)
@@ -49,7 +47,7 @@ func main() {
 	// 6. Run the sync
 	startTime := time.Now()
 
-	if err := gameSyncer.SyncAllGames(1); err != nil {
+	if err := gameSyncer.SyncAllGames(3); err != nil {
 		log.Fatal(err)
 	}
 
