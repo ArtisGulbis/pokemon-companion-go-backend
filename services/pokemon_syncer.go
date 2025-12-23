@@ -55,6 +55,25 @@ func (s *PokemonSyncer) SyncPokemon(id int) (*external.Pokemon, error) {
 	}
 	pokemon.SpeciesID = speciesID
 
+	// Download and save Pokemon sprites locally
+	if pokemon.Sprites.Other.OfficialArtwork.FrontDefault != "" {
+		localPath := utils.GetPokemonSpritePath(pokemon.ID, "artwork")
+		if err := utils.DownloadImage(pokemon.Sprites.Other.OfficialArtwork.FrontDefault, localPath); err != nil {
+			log.Printf("Warning: failed to download artwork for Pokemon %d: %v", pokemon.ID, err)
+		} else {
+			pokemon.Sprites.Other.OfficialArtwork.FrontDefault = localPath
+		}
+	}
+
+	if pokemon.Sprites.Other.OfficialArtwork.FrontShiny != "" {
+		localPath := utils.GetPokemonSpritePath(pokemon.ID, "artwork_shiny")
+		if err := utils.DownloadImage(pokemon.Sprites.Other.OfficialArtwork.FrontShiny, localPath); err != nil {
+			log.Printf("Warning: failed to download shiny artwork for Pokemon %d: %v", pokemon.ID, err)
+		} else {
+			pokemon.Sprites.Other.OfficialArtwork.FrontShiny = localPath
+		}
+	}
+
 	err = s.repo.InsertPokemon(pokemon)
 	if err != nil {
 		return nil, err

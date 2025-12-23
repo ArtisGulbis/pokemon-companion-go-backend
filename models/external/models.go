@@ -58,10 +58,12 @@ type Stat struct {
 }
 
 type Version struct {
-	ID           int        `json:"id"`
-	Name         string     `json:"name"`
+	ID           int    `json:"id"`
+	Name         string `json:"name"`
+	Cover        string
 	Names        []Response `json:"names"`
 	VersionGroup Response   `json:"version_group"`
+	ReleaseDate  int
 }
 
 type VersionGroup struct {

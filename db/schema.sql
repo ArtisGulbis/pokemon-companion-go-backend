@@ -14,16 +14,11 @@ DROP TABLE IF EXISTS pokemon_moves;
 DROP TABLE IF EXISTS type_effectiveness;
 DROP TABLE IF EXISTS abilities;
 DROP TABLE IF EXISTS flavor_texts;
-DROP TABLE IF EXISTS available_games;
 
 -- ============================================================================
 -- GAME STRUCTURE TABLES
 -- These define which games exist and what Pokemon are available in each
 -- ============================================================================
-CREATE TABLE available_games (
-    id INTEGER PRIMARY KEY,
-    name TEXT
-);
 
 -- Populated from: GET /version-group?limit=100
 -- This is your primary "game" selector - Black/White share a version-group
@@ -38,6 +33,8 @@ CREATE TABLE version_groups (
 CREATE TABLE versions (
     id INTEGER PRIMARY KEY,
     name TEXT UNIQUE NOT NULL,           -- e.g., "black", "white", "sword"
+    cover TEXT,
+    release_date INTEGER,
     display_name TEXT,                   -- e.g., "Pokemon Black" (from names[].name where language=en)
     version_group_id INTEGER NOT NULL REFERENCES version_groups(id)
 );

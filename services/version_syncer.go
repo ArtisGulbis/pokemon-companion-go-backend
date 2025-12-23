@@ -5,25 +5,47 @@ import (
 	"log"
 	"time"
 
+	"github.com/ArtisGulbis/pokemon-companion-go-backend/igdb"
 	"github.com/ArtisGulbis/pokemon-companion-go-backend/models/external"
 	"github.com/ArtisGulbis/pokemon-companion-go-backend/utils"
 )
 
 type VersionSyncer struct {
 	client      VersionAPIClient
+	igdbClient  *igdb.IGDBClient
 	repo        VersionRepo
 	rateLimiter *time.Ticker
 }
 
-func NewVersionSyncer(client VersionAPIClient, repo VersionRepo, rateLimiter *time.Ticker) *VersionSyncer {
+func NewVersionSyncer(client VersionAPIClient, igdbClient *igdb.IGDBClient, repo VersionRepo, rateLimiter *time.Ticker) *VersionSyncer {
 	return &VersionSyncer{
 		client:      client,
+		igdbClient:  igdbClient,
 		repo:        repo,
 		rateLimiter: rateLimiter,
 	}
 }
 
 func (s *VersionSyncer) InsertVersion(v *external.Version) error {
+	// Try to get cover using the known Pokemon game mapping
+	game, err := s.igdbClient.GetPokemonGameCover(v.Name)
+	if err != nil {
+		return err
+	}
+	if game != nil && game.Cover.ImageID != "" {
+		// Get the cover URL from IGDB
+		coverURL := igdb.GetCoverURL(game.Cover.ImageID, "cover_big")
+
+		// Download and save the image locally
+		localPath := utils.GetGameCoverPath(v.Name)
+		if err := utils.DownloadImage(coverURL, localPath); err != nil {
+			log.Printf("Warning: failed to download cover for %s: %v", v.Name, err)
+		} else {
+			// Store the local path instead of the URL
+			v.Cover = localPath
+		}
+	}
+	v.ReleaseDate = int(game.FirstReleaseDate)
 	return s.repo.InsertVersion(v)
 }
 

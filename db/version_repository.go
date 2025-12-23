@@ -32,6 +32,8 @@ func (r *VersionRepository) InsertVersion(v *external.Version) error {
 	_, err = stmt.Exec(
 		v.ID,
 		v.Name,
+		v.Cover,
+		v.ReleaseDate,
 		v.Name,
 		versionGroupId,
 	)

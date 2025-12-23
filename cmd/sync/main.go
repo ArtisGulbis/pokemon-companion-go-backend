@@ -3,9 +3,11 @@ package main
 import (
 	"flag"
 	"log"
+	"os"
 	"time"
 
 	"github.com/ArtisGulbis/pokemon-companion-go-backend/db"
+	"github.com/ArtisGulbis/pokemon-companion-go-backend/igdb"
 	"github.com/ArtisGulbis/pokemon-companion-go-backend/pokeapi"
 	"github.com/ArtisGulbis/pokemon-companion-go-backend/services"
 	_ "github.com/glebarez/go-sqlite"
@@ -26,17 +28,22 @@ func main() {
 	rateLimiter := time.NewTicker(650 * time.Millisecond)
 	defer rateLimiter.Stop()
 
-	// 3. Create repositories
+	// 3. Create IGDB client for game covers
+	igdbClientID := os.Getenv("IGDB_CLIENT_ID")
+	igdbClientSecret := os.Getenv("IGDB_CLIENT_SECRET")
+	igdbClient := igdb.NewIGDBClient(igdbClientID, igdbClientSecret)
+
+	// 4. Create repositories
 	versionRepo := db.NewVersionRepository(database)
 	pokedexRepo := db.NewPokedexRepository(database)
 	pokemonRepo := db.NewPokemonRepository(database)
 
-	// 4. Create syncers (the building blocks)
-	versionSyncer := services.NewVersionSyncer(client, versionRepo, rateLimiter)
+	// 5. Create syncers (the building blocks)
+	versionSyncer := services.NewVersionSyncer(client, igdbClient, versionRepo, rateLimiter)
 	pokedexSyncer := services.NewPokedexSyncer(client, pokedexRepo, rateLimiter)
 	pokemonSyncer := services.NewPokemonSyncer(client, pokemonRepo, rateLimiter)
 
-	// 5. Create game syncer (the orchestrator)
+	// 6. Create game syncer (the orchestrator)
 	gameSyncer := services.NewGameSyncer(
 		versionSyncer,
 		pokedexSyncer,
@@ -44,10 +51,10 @@ func main() {
 		rateLimiter,
 	)
 
-	// 6. Run the sync
+	// 7. Run the sync
 	startTime := time.Now()
 
-	if err := gameSyncer.SyncAllGames(3); err != nil {
+	if err := gameSyncer.SyncAllGames(8); err != nil {
 		log.Fatal(err)
 	}
 
