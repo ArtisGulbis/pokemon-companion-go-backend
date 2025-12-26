@@ -18,18 +18,41 @@ type URL struct {
 	URL string `json:"url"`
 }
 
+type Move struct {
+	ID            int           `json:"id"`
+	Name          string        `json:"name"`
+	Type          Response      `json:"type"`
+	Power         int           `json:"power"`
+	Accuracy      int           `json:"accuracy"`
+	PP            int           `json:"pp"`
+	DamageClass   Response      `json:"damage_class"`
+	EffectEntries []EffectEntry `json:"effect_entries"`
+	Priority      int           `json:"priority"`
+}
+
+type EffectEntry struct {
+	Effect      string   `json:"effect"`
+	Language    Response `json:"language"`
+	ShortEffect string   `json:"short_effect"`
+}
+
+type MoveResponse struct {
+	Move Response `json:"move"`
+}
+
 type Pokemon struct {
-	ID             int           `json:"id"`
-	Name           string        `json:"name"`
-	Height         int           `json:"height"`
-	Abilities      []Ability     `json:"abilities"`
-	Weight         int           `json:"weight"`
-	IsDefault      bool          `json:"is_default"`
-	BaseExperience int           `json:"base_experience"`
-	Types          []PokemonType `json:"types"`
-	Stats          []Stat        `json:"stats"`
-	Sprites        Sprite        `json:"sprites"`
-	Species        Response      `json:"species"`
+	ID             int            `json:"id"`
+	Name           string         `json:"name"`
+	Height         int            `json:"height"`
+	Abilities      []Ability      `json:"abilities"`
+	Moves          []MoveResponse `json:"moves"`
+	Weight         int            `json:"weight"`
+	IsDefault      bool           `json:"is_default"`
+	BaseExperience int            `json:"base_experience"`
+	Types          []PokemonType  `json:"types"`
+	Stats          []Stat         `json:"stats"`
+	Sprites        Sprite         `json:"sprites"`
+	Species        Response       `json:"species"`
 	SpeciesID      int
 }
 

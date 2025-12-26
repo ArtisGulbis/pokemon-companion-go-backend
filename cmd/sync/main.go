@@ -11,52 +11,57 @@ import (
 	"github.com/ArtisGulbis/pokemon-companion-go-backend/pokeapi"
 	"github.com/ArtisGulbis/pokemon-companion-go-backend/services"
 	_ "github.com/glebarez/go-sqlite"
+	"github.com/joho/godotenv"
 )
 
 func main() {
 	flag.Parse()
 
-	// 1. Setup database
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	database, err := db.New("pokemon.db")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer database.Close()
 
-	// 2. Create API client and rate limiter (shared by all syncers)
 	client := pokeapi.NewClient("https://pokeapi.co")
 	rateLimiter := time.NewTicker(650 * time.Millisecond)
 	defer rateLimiter.Stop()
 
-	// 3. Create IGDB client for game covers
 	igdbClientID := os.Getenv("IGDB_CLIENT_ID")
 	igdbClientSecret := os.Getenv("IGDB_CLIENT_SECRET")
 	igdbClient := igdb.NewIGDBClient(igdbClientID, igdbClientSecret)
 
-	// 4. Create repositories
 	versionRepo := db.NewVersionRepository(database)
 	pokedexRepo := db.NewPokedexRepository(database)
 	pokemonRepo := db.NewPokemonRepository(database)
+	moveRepo := db.NewMoveRepository(database)
 
-	// 5. Create syncers (the building blocks)
 	versionSyncer := services.NewVersionSyncer(client, igdbClient, versionRepo, rateLimiter)
 	pokedexSyncer := services.NewPokedexSyncer(client, pokedexRepo, rateLimiter)
 	pokemonSyncer := services.NewPokemonSyncer(client, pokemonRepo, rateLimiter)
+	moveSyncer := services.NewMoveSyncer(client, moveRepo, rateLimiter)
 
-	// 6. Create game syncer (the orchestrator)
 	gameSyncer := services.NewGameSyncer(
 		versionSyncer,
 		pokedexSyncer,
 		pokemonSyncer,
+		moveSyncer,
 		rateLimiter,
 	)
 
-	// 7. Run the sync
 	startTime := time.Now()
 
-	if err := gameSyncer.SyncAllGames(8); err != nil {
+	if err := gameSyncer.SyncAllGames(100); err != nil {
 		log.Fatal(err)
 	}
+
+	// scraper := scraper.NewScraper()
+	// scraper.ScrapeGamePage("https://bulbapedia.bulbagarden.net/wiki/Pokémon_Gold_and_Silver_Versions")
 
 	log.Printf("Sync complete! Time taken: %v", time.Since(startTime))
 }

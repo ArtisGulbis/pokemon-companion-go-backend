@@ -17,7 +17,13 @@ type Database struct {
 }
 
 func New(dbPath string) (*Database, error) {
-	os.Remove("pokemon.db")
+	fmt.Printf("DEBUG: Removing database file: %s\n", dbPath)
+	removeErr := os.Remove(dbPath)
+	if removeErr != nil && !os.IsNotExist(removeErr) {
+		fmt.Printf("DEBUG: Failed to remove database: %v\n", removeErr)
+	} else {
+		fmt.Printf("DEBUG: Database removed successfully\n")
+	}
 	dbExists := fileExists(dbPath)
 
 	sqlDB, err := sql.Open("sqlite", dbPath)

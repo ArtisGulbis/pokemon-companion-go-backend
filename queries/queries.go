@@ -9,6 +9,9 @@ import (
 //go:embed sql/version/version.sql
 var InsertVersion string
 
+//go:embed sql/move/move.sql
+var InsertMove string
+
 //go:embed sql/pokemon/ability.sql
 var InsertAbility string
 
@@ -53,6 +56,9 @@ var GetPokedexDescriptionsByPokedexID string
 
 //go:embed sql/pokedex/get_pokedex.sql
 var GetPokedexByID string
+
+//go:embed sql/move/get_move.sql
+var GetMoveByID string
 
 //go:embed sql/version/get_version.sql
 var GetVersionByID string

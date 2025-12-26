@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ArtisGulbis/pokemon-companion-go-backend/igdb"
 	"github.com/ArtisGulbis/pokemon-companion-go-backend/models/dto"
 	"github.com/ArtisGulbis/pokemon-companion-go-backend/models/external"
 	"github.com/stretchr/testify/assert"
@@ -60,10 +61,23 @@ func (m *MockVersionRepo) GetVersionByID(id int) (*dto.Version, error) {
 	return args.Get(0).(*dto.Version), args.Error(1)
 }
 
+type MockIGDBClient struct {
+	mock.Mock
+}
+
+func (m *MockIGDBClient) GetPokemonGameCover(name string) (*igdb.Game, error) {
+	args := m.Called(name)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*igdb.Game), args.Error(1)
+}
+
 func TestSyncVersion(t *testing.T) {
 	t.Run("Successfully sync a version", func(t *testing.T) {
 		mockClient := new(MockVersionAPIClient)
 		mockRepo := new(MockVersionRepo)
+		mockIGDBClient := new(MockIGDBClient)
 
 		mockResponse := &external.Version{
 			ID:   1,
@@ -83,11 +97,12 @@ func TestSyncVersion(t *testing.T) {
 		mockClient.On("FetchVersion", 1).Return(mockResponse, nil)
 
 		mockRepo.On("InsertVersion", mock.AnythingOfType("*external.Version")).Return(nil).Once()
+		mockIGDBClient.On("GetPokemonGameCover", mock.Anything).Return(nil, nil).Once()
 
 		rateLimiter := time.NewTicker(1 * time.Millisecond)
 
 		// Create syncer with mocks
-		syncer := NewVersionSyncer(mockClient, mockRepo, rateLimiter)
+		syncer := NewVersionSyncer(mockClient, mockIGDBClient, mockRepo, rateLimiter)
 
 		// Act
 		response, err := syncer.SyncVersion(1)
@@ -107,6 +122,7 @@ func TestSyncVersionGroup(t *testing.T) {
 	t.Run("Successfully sync a version group", func(t *testing.T) {
 		mockClient := new(MockVersionAPIClient)
 		mockRepo := new(MockVersionRepo)
+		mockIGDBClient := new(MockIGDBClient)
 
 		mockResponse := &external.VersionGroup{
 			ID:   1,
@@ -130,7 +146,7 @@ func TestSyncVersionGroup(t *testing.T) {
 		rateLimiter := time.NewTicker(1 * time.Millisecond)
 
 		// Create syncer with mocks
-		syncer := NewVersionSyncer(mockClient, mockRepo, rateLimiter)
+		syncer := NewVersionSyncer(mockClient, mockIGDBClient, mockRepo, rateLimiter)
 
 		// Act
 		response, err := syncer.SyncVersionGroup(1)
@@ -152,6 +168,7 @@ func TestSyncAllVersions(t *testing.T) {
 		// Create mocks
 		mockClient := new(MockVersionAPIClient)
 		mockRepo := new(MockVersionRepo)
+		mockIGDBClient := new(MockIGDBClient)
 
 		// Set up expectations - what we expect to be called
 		mockClient.On("FetchAll", "version?limit=2").Return([]external.Response{
@@ -180,11 +197,12 @@ func TestSyncAllVersions(t *testing.T) {
 
 		// Expect InsertVersion to be called twice
 		mockRepo.On("InsertVersion", mock.AnythingOfType("*external.Version")).Return(nil).Twice()
+		mockIGDBClient.On("GetPokemonGameCover", mock.Anything).Return(nil, nil).Twice()
 
 		rateLimiter := time.NewTicker(1 * time.Millisecond)
 
 		// Create syncer with mocks
-		syncer := NewVersionSyncer(mockClient, mockRepo, rateLimiter)
+		syncer := NewVersionSyncer(mockClient, mockIGDBClient, mockRepo, rateLimiter)
 
 		// Act
 		err := syncer.SyncAll(2)

@@ -20,6 +20,10 @@ func (c *Client) FetchPokemon(id int) (*external.Pokemon, error) {
 	return fetchByID[external.Pokemon](c, "pokemon", id)
 }
 
+func (c *Client) FetchMove(id int) (*external.Move, error) {
+	return fetchByID[external.Move](c, "move", id)
+}
+
 func (c *Client) FetchSpecies(id int) (*external.Species, error) {
 	return fetchByID[external.Species](c, "pokemon-species", id)
 }

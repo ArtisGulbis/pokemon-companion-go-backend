@@ -1,6 +1,7 @@
 package services
 
 import (
+	"github.com/ArtisGulbis/pokemon-companion-go-backend/igdb"
 	"github.com/ArtisGulbis/pokemon-companion-go-backend/models/dto"
 	"github.com/ArtisGulbis/pokemon-companion-go-backend/models/external"
 )
@@ -17,9 +18,19 @@ type VersionAPIClient interface {
 	FetchVersionGroup(id int) (*external.VersionGroup, error)
 }
 
+type MoveAPIClient interface {
+	FetchAll(path string) ([]external.Response, error)
+	FetchMove(id int) (*external.Move, error)
+}
+
 type PokedexAPIClient interface {
 	FetchAll(path string) ([]external.Response, error)
 	FetchPokedex(id int) (*external.Pokedex, error)
+}
+
+type MoveRepo interface {
+	InsertMove(v *external.Move) error
+	GetMoveByID(id int) (*dto.Move, error)
 }
 
 type VersionRepo interface {
@@ -41,4 +52,8 @@ type PokedexRepo interface {
 	InsertPokedexEntry(p *external.PokedexEntry) error
 	InsertVersionGroupPokedex(versionGroupPokedex *external.VersionGroup) error
 	GetPokedexByID(id int) (*dto.Pokedex, error)
+}
+
+type IGDBClient interface {
+	GetPokemonGameCover(versionName string) (*igdb.Game, error)
 }
