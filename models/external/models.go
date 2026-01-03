@@ -37,7 +37,15 @@ type EffectEntry struct {
 }
 
 type MoveResponse struct {
-	Move Response `json:"move"`
+	Move                Response             `json:"move"`
+	VersionGroupDetails []VersionGroupDetail `json:"version_group_details"`
+}
+
+type VersionGroupDetail struct {
+	LevelLearnedAt  int      `json:"level_learned_at"`
+	MoveLearnMethod Response `json:"move_learn_method"`
+	Order           int      `json:"order"`
+	VersionGroup    Response `json:"version_group"`
 }
 
 type Pokemon struct {

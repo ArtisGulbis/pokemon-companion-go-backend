@@ -3,6 +3,7 @@ package services
 import (
 	"fmt"
 	"log"
+	"sync"
 	"time"
 
 	"github.com/ArtisGulbis/pokemon-companion-go-backend/models/external"
@@ -10,16 +11,21 @@ import (
 )
 
 type PokemonSyncer struct {
-	client      PokemonAPIClient
-	repo        PokemonRepo
-	rateLimiter *time.Ticker
+	client        PokemonAPIClient
+	repo          PokemonRepo
+	rateLimiter   *time.Ticker
+	syncedSpecies map[int]bool // In-memory cache of synced species IDs
+	syncedPokemon map[int]bool // In-memory cache of synced Pokemon IDs
+	mu            sync.Mutex   // Protects cache maps
 }
 
 func NewPokemonSyncer(client PokemonAPIClient, repo PokemonRepo, rateLimiter *time.Ticker) *PokemonSyncer {
 	return &PokemonSyncer{
-		client:      client,
-		repo:        repo,
-		rateLimiter: rateLimiter,
+		client:        client,
+		repo:          repo,
+		rateLimiter:   rateLimiter,
+		syncedSpecies: make(map[int]bool),
+		syncedPokemon: make(map[int]bool),
 	}
 }
 
@@ -44,6 +50,26 @@ func (s *PokemonSyncer) InsertAbility(a *external.Ability, pokemonID int) error 
 }
 
 func (s *PokemonSyncer) SyncPokemon(id int) (*external.Pokemon, error) {
+	// Check cache first
+	s.mu.Lock()
+	if s.syncedPokemon[id] {
+		s.mu.Unlock()
+		// Already synced in this session, just fetch from client without DB insert
+		// We still return the Pokemon data for the caller
+		pokemon, err := s.client.FetchPokemon(id)
+		if err != nil {
+			return nil, err
+		}
+		speciesID, err := utils.ExtractIDFromURL(pokemon.Species.Url)
+		if err != nil {
+			return nil, err
+		}
+		pokemon.SpeciesID = speciesID
+		return pokemon, nil
+	}
+	s.mu.Unlock()
+
+	// Not in cache, fetch and insert
 	pokemon, err := s.client.FetchPokemon(id)
 	if err != nil {
 		return nil, err
@@ -79,10 +105,25 @@ func (s *PokemonSyncer) SyncPokemon(id int) (*external.Pokemon, error) {
 		return nil, err
 	}
 
+	// Mark as synced in cache
+	s.mu.Lock()
+	s.syncedPokemon[id] = true
+	s.mu.Unlock()
+
 	return pokemon, nil
 }
 
 func (s *PokemonSyncer) SyncSpecies(id int) (*external.Species, error) {
+	// Check cache first
+	s.mu.Lock()
+	if s.syncedSpecies[id] {
+		s.mu.Unlock()
+		// Already synced in this session, skip API call and DB insert
+		return nil, nil
+	}
+	s.mu.Unlock()
+
+	// Not in cache, fetch and insert
 	species, err := s.client.FetchSpecies(id)
 	if err != nil {
 		return nil, err
@@ -92,6 +133,11 @@ func (s *PokemonSyncer) SyncSpecies(id int) (*external.Species, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	// Mark as synced in cache
+	s.mu.Lock()
+	s.syncedSpecies[id] = true
+	s.mu.Unlock()
 
 	return species, nil
 }

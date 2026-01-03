@@ -9,6 +9,11 @@ coverage:
 coverage-html:
 	go tool cover -html=coverage.out
 
+reset:
+	rm -rf images/pokemon/*
+	rm -rf images/covers/*
+	rm pokemon.db
+
 # Build the sync command
 build:
 	go build -o bin/sync ./cmd/sync
@@ -19,7 +24,7 @@ run: build
 
 # Run sync with limit
 sync:
-	go run ./cmd/sync -limit=5
+	go run ./cmd/sync
 
 # Clean build artifacts
 clean:

@@ -35,6 +35,11 @@ func (mr *MockMoveRepo) InsertMove(m *external.Move) error {
 	return args.Error(0)
 }
 
+func (mr *MockMoveRepo) InsertPokemonMove(pokemonID int, moveID int, versionGroupID int, learnMethod string, levelLearnedAt int) error {
+	args := mr.Called(pokemonID, moveID, versionGroupID, learnMethod, levelLearnedAt)
+	return args.Error(0)
+}
+
 func (mr *MockMoveRepo) GetMoveByID(id int) (*dto.Move, error) {
 	args := mr.Called(id)
 	if args.Get(0) == nil {

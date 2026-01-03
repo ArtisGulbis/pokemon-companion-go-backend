@@ -45,6 +45,9 @@ var InsertType string
 //go:embed sql/pokedex/pokedex_description.sql
 var InsertPokemonDescriptions string
 
+//go:embed sql/move/pokemon_moves.sql
+var InsertPokemonMoves string
+
 //go:embed sql/pokedex/pokedex_pokemon_entry.sql
 var InsertPokedexPokemonEntry string
 

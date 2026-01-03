@@ -30,6 +30,7 @@ type PokedexAPIClient interface {
 
 type MoveRepo interface {
 	InsertMove(v *external.Move) error
+	InsertPokemonMove(pokemonID, moveID, versionGroupID int, learnMethod string, levelLearnedAt int) error
 	GetMoveByID(id int) (*dto.Move, error)
 }
 

@@ -69,3 +69,19 @@ func (r *MoveRepository) GetMoveByID(id int) (*dto.Move, error) {
 
 	return &move, nil
 }
+
+// InsertPokemonMove inserts a pokemon_move relationship
+func (r *MoveRepository) InsertPokemonMove(pokemonID, moveID, versionGroupID int, learnMethod string, levelLearnedAt int) error {
+	stmt, err := r.db.Prepare(queries.InsertPokemonMoves)
+	if err != nil {
+		return fmt.Errorf("failed to prepare statement: %w", err)
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(pokemonID, moveID, versionGroupID, learnMethod, levelLearnedAt)
+	if err != nil {
+		return fmt.Errorf("failed to insert pokemon_move: %w", err)
+	}
+
+	return nil
+}

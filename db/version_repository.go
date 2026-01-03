@@ -23,27 +23,16 @@ func (r *VersionRepository) InsertVersion(v *external.Version) error {
 		return err
 	}
 
-	fmt.Printf("DEBUG Version Insert - ID: %d, Name: %s, Cover: %s, ReleaseDate: %d, VersionGroupID: %d\n",
-		v.ID, v.Name, v.Cover, v.ReleaseDate, versionGroupId)
-
-	// Verify version_group exists before inserting
-	var vgExists int
-	checkErr := r.db.QueryRow("SELECT COUNT(*) FROM version_groups WHERE id = ?", versionGroupId).Scan(&vgExists)
-	if checkErr != nil {
-		fmt.Printf("DEBUG: Error checking version_group: %v\n", checkErr)
-	} else {
-		fmt.Printf("DEBUG: Version_group %d exists before version insert: %v\n", versionGroupId, vgExists > 0)
+	stmt, err := r.db.Prepare(queries.InsertVersion)
+	if err != nil {
+		return fmt.Errorf("failed to prepare statement: %w", err)
 	}
+	defer stmt.Close()
 
-	// Use direct SQL instead of prepared statement
-	directSQL := "INSERT OR IGNORE INTO versions (id, name, cover, release_date, display_name, version_group_id) VALUES (?, ?, ?, ?, ?, ?)"
-	result, err := r.db.Exec(directSQL, v.ID, v.Name, v.Cover, v.ReleaseDate, v.Name, versionGroupId)
+	_, err = stmt.Exec(v.ID, v.Name, v.Cover, v.ReleaseDate, v.Name, versionGroupId)
 	if err != nil {
 		return fmt.Errorf("version insert failed: %w", err)
 	}
-
-	rowsAffected, _ := result.RowsAffected()
-	fmt.Printf("DEBUG: Version insert - RowsAffected: %d\n", rowsAffected)
 
 	return nil
 }
@@ -51,32 +40,17 @@ func (r *VersionRepository) InsertVersion(v *external.Version) error {
 func (r *VersionRepository) InsertVersionGroup(v *external.VersionGroup) error {
 	stmt, err := r.db.Prepare(queries.InsertVersionGroup)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to prepare statement: %w", err)
 	}
 	defer stmt.Close()
 
-	fmt.Printf("DEBUG: Inserting version_group - ID: %d, Name: %s, Generation: %s\n",
-		v.ID, v.Name, v.Generation.Name)
-
-	result, err := stmt.Exec(
+	_, err = stmt.Exec(
 		v.ID,
 		v.Name,
 		v.Generation.Name,
 	)
 	if err != nil {
-		return fmt.Errorf("exec failed: %w", err)
-	}
-
-	rowsAffected, _ := result.RowsAffected()
-	fmt.Printf("DEBUG: RowsAffected: %d\n", rowsAffected)
-
-	// Check if it was actually inserted
-	var count int
-	checkErr := r.db.QueryRow("SELECT COUNT(*) FROM version_groups WHERE id = ?", v.ID).Scan(&count)
-	if checkErr != nil {
-		fmt.Printf("DEBUG: Error checking: %v\n", checkErr)
-	} else {
-		fmt.Printf("DEBUG: Version group %d exists in DB: %v\n", v.ID, count > 0)
+		return fmt.Errorf("version group insert failed: %w", err)
 	}
 
 	return nil

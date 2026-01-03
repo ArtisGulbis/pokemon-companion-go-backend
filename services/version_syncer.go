@@ -3,6 +3,7 @@ package services
 import (
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/ArtisGulbis/pokemon-companion-go-backend/igdb"
@@ -27,27 +28,40 @@ func NewVersionSyncer(client VersionAPIClient, igdbClient IGDBClient, repo Versi
 }
 
 func (s *VersionSyncer) InsertVersion(v *external.Version) error {
-	// Try to get cover using the known Pokemon game mapping
-	game, err := s.igdbClient.GetPokemonGameCover(v.Name)
-	if err != nil {
-		// Don't fail the sync if cover can't be fetched, just log a warning
-		log.Printf("Warning: failed to get cover for %s: %v", v.Name, err)
-	} else if game != nil {
-		if game.Cover.ImageID != "" {
-			// Get the cover URL from IGDB
-			coverURL := igdb.GetCoverURL(game.Cover.ImageID, "cover_big")
+	// Check if cover already exists locally to skip IGDB API call
+	localPath := utils.GetGameCoverPath(v.Name)
 
-			// Download and save the image locally
-			localPath := utils.GetGameCoverPath(v.Name)
-			if err := utils.DownloadImage(coverURL, localPath); err != nil {
-				log.Printf("Warning: failed to download cover for %s: %v", v.Name, err)
-			} else {
-				// Store the local path instead of the URL
-				v.Cover = localPath
-			}
+	// If cover already exists, just use it and skip IGDB API call
+	if _, err := os.Stat(localPath); err == nil {
+		v.Cover = localPath
+		// Still need release date from IGDB if available
+		game, err := s.igdbClient.GetPokemonGameCover(v.Name)
+		if err == nil && game != nil {
+			v.ReleaseDate = int(game.FirstReleaseDate)
 		}
-		v.ReleaseDate = int(game.FirstReleaseDate)
+	} else {
+		// Cover doesn't exist, fetch from IGDB
+		game, err := s.igdbClient.GetPokemonGameCover(v.Name)
+		if err != nil {
+			// Don't fail the sync if cover can't be fetched, just log a warning
+			log.Printf("Warning: failed to get cover for %s: %v", v.Name, err)
+		} else if game != nil {
+			if game.Cover.ImageID != "" {
+				// Get the cover URL from IGDB
+				coverURL := igdb.GetCoverURL(game.Cover.ImageID, "cover_big")
+
+				// Download and save the image locally
+				if err := utils.DownloadImage(coverURL, localPath); err != nil {
+					log.Printf("Warning: failed to download cover for %s: %v", v.Name, err)
+				} else {
+					// Store the local path instead of the URL
+					v.Cover = localPath
+				}
+			}
+			v.ReleaseDate = int(game.FirstReleaseDate)
+		}
 	}
+
 	return s.repo.InsertVersion(v)
 }
 

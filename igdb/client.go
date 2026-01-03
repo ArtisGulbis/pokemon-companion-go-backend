@@ -36,7 +36,7 @@ var pokemonGameIDs = map[string]int{
 	"diamond":           1560,
 	"pearl":             1518,
 	"platinum":          1519,
-	"colloseum":         2725,
+	"colosseum":         2725,
 	"xd":                2724,
 	"sword":             37382,
 	"heartgold":         1556,
@@ -69,7 +69,7 @@ var pokemonGameIDs = map[string]int{
 	"scarlet":           191931,
 	"violet":            191930,
 	"legends-za":        288327,
-	"mega-dimensions":   366894,
+	"mega-dimension":    366894,
 }
 
 type Cover struct {
